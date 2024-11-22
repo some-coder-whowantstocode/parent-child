@@ -147,13 +147,13 @@ export async function POST(req: NextApiRequest){
                     user = await Child.findOne({username:identifier});
                 }
             }
-            console.log(user)
+            // console.log(user)
             if(!user){
                 return NextResponse.json({
                     err:'invalid user information'
                 },{status:400})
             }
-            if(!user.isVerified){
+            if(!user.isverified){
                 return NextResponse.json({
                     err:'user is not verified, please verify first'
                 },{status:403})
@@ -165,13 +165,22 @@ export async function POST(req: NextApiRequest){
                     err:'invalid user information'
                 },{status:400})
             }
-
+            const secretKey = process.env.SECRET_KEY;
+            if (!secretKey) { 
+                throw new Error('Secret key is not defined. Please set JWT_SECRET_KEY in your .env.local file.'); 
+            }
+            const verificationToken = jwt.sign(
+                {fullname: user.fullname, email:user.email},
+                secretKey,
+                {expiresIn:'24h'}
+            )
             return NextResponse.json({
                 success:true,
                 username:user.username,
                 fullname:user.fullname,
                 email:user.email,
-                type:user.type
+                type:user.type,
+                token:verificationToken
             },{status:200})
         }
 
