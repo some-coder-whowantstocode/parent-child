@@ -1,10 +1,11 @@
 import { NextApiRequest } from 'next';
 import { NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
-import bcrypt from 'bcryptjs';
+import bcrypt from 'bcrypt';
 
 import { Child, Guardian } from '@/app/lib/models/mongoose_models/user';
 import handleEmailVerification from '@/app/lib/emailverification';
+import dbconnect from '@/app/lib/db';
 
 export async function POST(req: NextApiRequest){
     try {
@@ -23,12 +24,6 @@ export async function POST(req: NextApiRequest){
 
         const {generate} = data;
 
-        if(!generate){
-            return NextResponse.json({
-                err:"please provide all required data"
-            },{status:400})
-        }
-
         const secretKey = process.env.SECRET_KEY;
         if(!secretKey){
             throw new Error('no secretkey available');
@@ -37,13 +32,13 @@ export async function POST(req: NextApiRequest){
         if(generate){
             const {email, type} = data;
             let user ;
-
+            
             if(!email || !type){
                 return NextResponse.json({
                     err:"please provide all required data"
                 },{status:400})
             }
-
+            await dbconnect();
             if(type === "guardian"){
                 user = await Guardian.findOne({email});
             }else{
@@ -55,7 +50,7 @@ export async function POST(req: NextApiRequest){
                     err:"No user with such user exists or user is not verified yet"
                 },{status:400})
             }
-           
+            
             const token = await jwt.sign({email},secretKey,{expiresIn:'24h'});
             
             let text = `visit this link to verify your mail link ${token}`;
@@ -108,6 +103,7 @@ export async function POST(req: NextApiRequest){
         }
         
     } catch (error) {
+        console.log(error)
         if (error.name === 'TokenExpiredError') {
         return NextResponse.json({err:"token expired"},{status:500})
         }

@@ -43,9 +43,9 @@ export async function POST(req: NextApiRequest){
                 {expiresIn:'24h'}
             )
             if(type === 'guardian'){
-                user = new Guardian({ fullname, username, email, password:hashedpassword, children:[], verificationToken });
+                user = new Guardian({ fullname, username, email, password:hashedpassword, connections:[], verificationToken });
             }else{
-                user = new Child({ fullname, username, email, password:hashedpassword, guardian:[], verificationToken });
+                user = new Child({ fullname, username, email, password:hashedpassword, connections:[], verificationToken });
             }
             await user.save();
             let text = `visit this link to verify your mail link`;
@@ -134,17 +134,28 @@ export async function POST(req: NextApiRequest){
                     err:'please provide all required data'
                 },{status:400})
             }
+
+            const projection = "isverified password _id email username fullname type"
+
             if(regex.test(identifier)){
                 if(type === 'guardian'){
-                    user = await Guardian.findOne({email:identifier});
+                    user = await Guardian.findOne({email:identifier})
+                    .lean()
+                    .select(projection);
                 }else{
-                    user = await Child.findOne({email:identifier});
+                    user = await Child.findOne({email:identifier})
+                    .lean()
+                    .select(projection);
                 }
             }else{
                 if(type === 'guardian'){
-                    user = await Guardian.findOne({username:identifier});
+                    user = await Guardian.findOne({username:identifier})
+                    .lean()
+                    .select(projection);
                 }else{
-                    user = await Child.findOne({username:identifier});
+                    user = await Child.findOne({username:identifier})
+                    .lean()
+                    .select(projection);
                 }
             }
             // console.log(user)
@@ -170,7 +181,7 @@ export async function POST(req: NextApiRequest){
                 throw new Error('Secret key is not defined. Please set JWT_SECRET_KEY in your .env.local file.'); 
             }
             const verificationToken = jwt.sign(
-                {fullname: user.fullname, email:user.email},
+                {type:user.type, email:user.email},
                 secretKey,
                 {expiresIn:'24h'}
             )

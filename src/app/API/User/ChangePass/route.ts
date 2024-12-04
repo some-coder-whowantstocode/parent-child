@@ -4,11 +4,12 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
 import { Child, Guardian } from '@/app/lib/models/mongoose_models/user';
+import dbconnect from '@/app/lib/db';
 
 
 export async function POST(req: NextApiRequest){
     try {
-        const token = req.cookies._parsed.get('authToken').value;
+        const token = req.cookies._parsed.get('authToken');
         if(!token) {
             return NextResponse.json({
                 err:"Unauthorized access"
@@ -19,15 +20,17 @@ export async function POST(req: NextApiRequest){
         if(!secretKey){
             throw new Error("Secret key is not defined");
         }
-        const decoded = await jwt.verify(token, secretKey);
+        const decoded = await jwt.verify(token.value, secretKey);
         const { email } = decoded;
 
+        await dbconnect();
+        
         const streamdata = req.body;
         const reader = streamdata.getReader();
         const decoder = new TextDecoder('utf-8');
         let chunk = "";
         while(true){
-            const {done, value} =await reader.read();
+            const {done, value} = await reader.read();
             if(done){
                 break;
             }
@@ -42,19 +45,23 @@ export async function POST(req: NextApiRequest){
             },{status:400})
         }
 
+        if(oldpass === newpass){
+            return NextResponse.json({
+                err:"Dont try to fool me niggesh, both the passwords are same"
+            },{status:400})
+        }
+
         const hashedpassword = await bcrypt.hash(newpass, 10);
-        // const regex = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/g;
         let user;
-            if(type==='guardian'){
-                console.log('hi')
-                user = await Guardian.find({email});
+        if(type==='guardian'){
+                user = await Guardian.findOne({email});
             }else{
                 user = await Child.findOne({email});
             }
 
-        if(!user){
+        if(!user || !user.isverified){
             return NextResponse.json({
-                err:"No such user exists"
+                err:"No user with such user exists or user is not verified yet"
             },{status:400})
         }
 

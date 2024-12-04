@@ -5,12 +5,13 @@ import jwt from 'jsonwebtoken';
 import { ReadStream } from "@/app/lib/streamReader";
 import { Samplepaper } from "@/app/lib/models/mongoose_models/problem";
 import { Guardian } from "@/app/lib/models/mongoose_models/user";
+import dbconnect from "@/app/lib/db";
 
 export async function POST(req:NextApiRequest){
     try {
         const data = await ReadStream(req.body);
         const {title, questions} = data;
-        const token = req.cookies.authToken;
+        const token = req.cookies._parsed.get('authToken');
         if(!token) {
             return NextResponse.json({
                 err:"Unauthorized access"
@@ -21,15 +22,16 @@ export async function POST(req:NextApiRequest){
         if(!secretKey){
             throw new Error("Secret key is not defined");
         }
-        const decoded = await jwt.verify(token, secretKey);
+        const decoded = await jwt.verify(token.value, secretKey);
         const { email } = decoded;
 
+        await dbconnect();
         const user = await Guardian.findOne({email});
 
-        if(!user){
+        if(!user || !user.isverified){
             return NextResponse.json({
-                err:"Unauthorized access"
-            },{status:401})
+                err:"No user with such user exists or user is not verified yet"
+            },{status:400})
         }
 
         if(!title || !questions){
@@ -44,14 +46,15 @@ export async function POST(req:NextApiRequest){
             createdBy:user._id
         })
 
-        samplepaper.save();
+        const paper = await samplepaper.save();
+        await Guardian.updateOne({email},{$push:{samplePapers:paper._id}})
 
         return NextResponse.json({
             message:"sample paper created successfully"
         },{status:201})
     } catch (error) {
         return NextResponse.json({
-            err:"something went wrong "
+            err:error.message ? error.message :"something went wrong "
         },{status:500})
     }
 }

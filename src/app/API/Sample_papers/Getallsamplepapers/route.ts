@@ -3,10 +3,11 @@ import jwt from 'jsonwebtoken';
 import { NextResponse } from 'next/server';
 
 import { Guardian } from "@/app/lib/models/mongoose_models/user";
+import dbconnect from '@/app/lib/db';
 
 export async function GET(req: NextApiRequest) {
     try {
-        const token = req.cookies.authToken;
+        const token = req.cookies._parsed.get('authToken');
         if (!token) {
             return NextResponse.json({ err: "Unauthorized access" },{status:401});
         }
@@ -16,9 +17,9 @@ export async function GET(req: NextApiRequest) {
             throw new Error("Secret key is not defined");
         }
 
-        const decoded = jwt.verify(token, secretKey);
+        const decoded = jwt.verify(token.value, secretKey);
         const { email } = decoded;
-
+        await dbconnect();
         const guardian = await Guardian.findOne({ email });
         if (!guardian) {
             return NextResponse.json({ err: "Guardian not found" },{status:404});

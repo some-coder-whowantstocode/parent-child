@@ -8,7 +8,7 @@ export async function ReadStream(body : ReadableStream){
         if(done){
             break;
         }
-        chunk += decoder.decode(value);
+        chunk += decoder.decode(value,{stream:true});
     }
     const data = JSON.parse(chunk);
     return data;
