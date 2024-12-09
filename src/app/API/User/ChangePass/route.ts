@@ -3,8 +3,9 @@ import { NextResponse } from 'next/server';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
-import { Child, Guardian } from '@/app/lib/models/mongoose_models/user';
+import { User } from '@/app/lib/models/mongoose_models/user';
 import dbconnect from '@/app/lib/db';
+import { verifyToken } from '@/app/lib/middleware/verifyToken';
 
 
 export async function POST(req: NextApiRequest){
@@ -20,7 +21,12 @@ export async function POST(req: NextApiRequest){
         if(!secretKey){
             throw new Error("Secret key is not defined");
         }
-        const decoded = await jwt.verify(token.value, secretKey);
+        const decoded = await verifyToken(token);
+        if(!decoded){
+            return NextResponse.json({
+                err:"Unauthorized access"
+            },{status:401})
+        }
         const { email } = decoded;
 
         await dbconnect();
@@ -54,9 +60,9 @@ export async function POST(req: NextApiRequest){
         const hashedpassword = await bcrypt.hash(newpass, 10);
         let user;
         if(type==='guardian'){
-                user = await Guardian.findOne({email});
+                user = await User.findOne({email});
             }else{
-                user = await Child.findOne({email});
+                user = await User.findOne({email});
             }
 
         if(!user || !user.isverified){
@@ -73,11 +79,7 @@ export async function POST(req: NextApiRequest){
             },{status:400})
         }
 
-            if(type==='guardian'){
-                user = await Guardian.updateOne({email},{password:hashedpassword});
-            }else{
-                user = await Child.updateOne({email},{password:hashedpassword});
-            }
+                user = await User.updateOne({email},{password:hashedpassword});
 
         return NextResponse.json({
             success:true,

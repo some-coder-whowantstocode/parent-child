@@ -1,13 +1,25 @@
 'use server'
 import { NextApiRequest } from "next";
-import jwt from 'jsonwebtoken';
+import jwt, { JwtPayload } from 'jsonwebtoken';
 import { NextResponse } from "next/server";
 import bcrypt from 'bcrypt';
 
 import { reqbody } from "@/app/lib/models/Auth/signup";
 import dbconnect from '../../../lib/db';
-import { Child, Guardian } from "@/app/lib/models/mongoose_models/user";
+import { User } from "@/app/lib/models/mongoose_models/user";
 import handleEmailVerification from "@/app/lib/emailverification";
+import { verifyToken } from "@/app/lib/middleware/verifyToken";
+
+interface USER {
+    isverified : boolean,
+    password : string,
+    role : string,
+    email : string,
+    _id : string,
+    username : string,
+    fullname : string,
+    type : string
+}
 
 export async function POST(req: NextApiRequest){
     try {
@@ -43,9 +55,9 @@ export async function POST(req: NextApiRequest){
                 {expiresIn:'24h'}
             )
             if(type === 'guardian'){
-                user = new Guardian({ fullname, username, email, password:hashedpassword, connections:[], verificationToken });
+                user = new User({ fullname, username, email, password:hashedpassword, connections:[], verificationToken });
             }else{
-                user = new Child({ fullname, username, email, password:hashedpassword, connections:[], verificationToken });
+                user = new User({ fullname, username, email, password:hashedpassword, connections:[], verificationToken });
             }
             await user.save();
             let text = `visit this link to verify your mail link`;
@@ -71,7 +83,12 @@ export async function POST(req: NextApiRequest){
                 throw new Error('Secret key is not defined. Please set JWT_SECRET_KEY in your .env.local file.'); 
             }
 
-            const decodedtoken = await jwt.verify(token,secretKey);
+            const decodedtoken = await verifyToken(token);
+            if(!decodedtoken){
+                return NextResponse.json({
+                    err:"invalid token"
+                },{status:401})
+            }
             if(!decodedtoken.email){
                 return NextResponse.json({
                     err:'invalid token'
@@ -79,9 +96,9 @@ export async function POST(req: NextApiRequest){
             }
             
             if(type === 'guardian'){
-                user = await Guardian.findOne({email:decodedtoken.email});
+                user = await User.findOne({email:decodedtoken.email});
             }else{
-                user = await Child.findOne({email:decodedtoken.email});
+                user = await User.findOne({email:decodedtoken.email});
             }
 
             if(!user){
@@ -103,9 +120,9 @@ export async function POST(req: NextApiRequest){
                 let text = `visit this link to verify your mail link`;
                 handleEmailVerification('verification of email', text, decodedtoken.email, text);
                 if(type === 'guardian'){
-                    await Guardian.updateOne({email:decodedtoken.email},{verificationToken, tokenExpires:Date.now() + 24*60*60*1000,})
+                    await User.updateOne({email:decodedtoken.email},{verificationToken, tokenExpires:Date.now() + 24*60*60*1000,})
                 }else{
-                    await Child.updateOne({email:decodedtoken.email},{ verificationToken, tokenExpires:Date.now() + 24*60*60*1000,})
+                    await User.updateOne({email:decodedtoken.email},{ verificationToken, tokenExpires:Date.now() + 24*60*60*1000,})
                 }
                 return NextResponse.json({
                     err:"token expired resending link to user"
@@ -114,9 +131,9 @@ export async function POST(req: NextApiRequest){
 
             if(!user.isVerified){
                 if(type === 'guardian'){
-                    await Guardian.updateOne({email:decodedtoken.email},{isverified:true, verificationToken: null, tokenExpires:null})
+                    await User.updateOne({email:decodedtoken.email},{isverified:true, verificationToken: null, tokenExpires:null})
                 }else{
-                    await Child.updateOne({email:decodedtoken.email},{isverified:true, verificationToken: null, tokenExpires:null})
+                    await User.updateOne({email:decodedtoken.email},{isverified:true, verificationToken: null, tokenExpires:null})
                 }
             }
 
@@ -126,7 +143,6 @@ export async function POST(req: NextApiRequest){
         }
 
         if(data.login){
-            let user;
             const {identifier, password, type} = data;
             const regex =/[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/g
             if(!identifier || ! password || ! type){
@@ -135,30 +151,23 @@ export async function POST(req: NextApiRequest){
                 },{status:400})
             }
 
-            const projection = "isverified password _id email username fullname type"
-
+            
+            let query;
             if(regex.test(identifier)){
-                if(type === 'guardian'){
-                    user = await Guardian.findOne({email:identifier})
-                    .lean()
-                    .select(projection);
-                }else{
-                    user = await Child.findOne({email:identifier})
-                    .lean()
-                    .select(projection);
-                }
+                query = {email:identifier};
             }else{
-                if(type === 'guardian'){
-                    user = await Guardian.findOne({username:identifier})
-                    .lean()
-                    .select(projection);
-                }else{
-                    user = await Child.findOne({username:identifier})
-                    .lean()
-                    .select(projection);
-                }
+                query = {username:identifier};
             }
-            // console.log(user)
+            
+            const projection = "isverified password _id email username fullname role"
+            let user = await (async() : Promise<USER | null> =>{
+                            let userdata = await User.findOne(query).lean().select(projection);
+                            let data = userdata as unknown
+                            if(data && typeof(data) === "object" ){
+                                return data as USER;
+                            }
+                            return null;
+                        })()
             if(!user){
                 return NextResponse.json({
                     err:'invalid user information'
@@ -181,7 +190,7 @@ export async function POST(req: NextApiRequest){
                 throw new Error('Secret key is not defined. Please set JWT_SECRET_KEY in your .env.local file.'); 
             }
             const verificationToken = jwt.sign(
-                {type:user.type, email:user.email},
+                {type:user.role, email:user.email, id:user._id},
                 secretKey,
                 {expiresIn:'24h'}
             )
@@ -199,8 +208,17 @@ export async function POST(req: NextApiRequest){
             err:"request is without intent please clear the intent"
         },{status:400})
         
-    } catch (error) {
-        console.log(error)
+    } catch (error : Error | any) {
+        switch(error.code){
+            case 11000 :
+                {
+                    return NextResponse.json({
+                        err:"user already exists.",
+                    },{status:500})
+                }
+            break;
+        }
+        
         return NextResponse.json({
             err:error.message || 'something went wrong while creating account.',
         },{status:500})

@@ -3,9 +3,10 @@ import { NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 
-import { Child, Guardian } from '@/app/lib/models/mongoose_models/user';
+import { User } from '@/app/lib/models/mongoose_models/user';
 import handleEmailVerification from '@/app/lib/emailverification';
 import dbconnect from '@/app/lib/db';
+import { verifyToken } from '@/app/lib/middleware/verifyToken';
 
 export async function POST(req: NextApiRequest){
     try {
@@ -39,11 +40,7 @@ export async function POST(req: NextApiRequest){
                 },{status:400})
             }
             await dbconnect();
-            if(type === "guardian"){
-                user = await Guardian.findOne({email});
-            }else{
-                user = await Child.findOne({email});
-            }
+                user = await User.findOne({email});
     
             if(!user || !user.isverified){
                 return NextResponse.json({
@@ -68,7 +65,12 @@ export async function POST(req: NextApiRequest){
                 },{status:400})
             }
 
-            const decodedtoken = jwt.verify(token,secretKey);
+            const decodedtoken = await verifyToken(token);
+            if(!decodedtoken){
+                return NextResponse.json({
+                    err:"invalid token"
+                },{status:401})
+            }
 
             if(!decodedtoken.email){
                 return NextResponse.json({
@@ -78,8 +80,7 @@ export async function POST(req: NextApiRequest){
 
             const hashedpass = await bcrypt.hash(password,10);
 
-            if(type === "guardian"){
-                user = await Guardian.findOne({email:decodedtoken.email});
+                user = await User.findOne({email:decodedtoken.email});
 
                 if(!user){
                     return NextResponse.json({
@@ -87,17 +88,7 @@ export async function POST(req: NextApiRequest){
                     },{status:400})
                 }
 
-                await Guardian.updateOne({email:decodedtoken.email},{password:hashedpass})
-            }else{
-                user = await Child.findOne({email:decodedtoken.email});
-                if(!user){
-                    return NextResponse.json({
-                        err:"invalid token"
-                    },{status:400})
-                }
-
-                await Child.updateOne({email:decodedtoken.email},{password:hashedpass})
-            }
+                await User.updateOne({email:decodedtoken.email},{password:hashedpass})
 
             return NextResponse.json({success:true, message:"password updated successfully"},{status:200})
         }
@@ -105,7 +96,7 @@ export async function POST(req: NextApiRequest){
     } catch (error) {
         console.log(error)
         if (error.name === 'TokenExpiredError') {
-        return NextResponse.json({err:"token expired"},{status:500})
+        return NextResponse.json({err:"token expired"},{status:401})
         }
         return NextResponse.json({err:"something went wrong"},{status:500})
     }
