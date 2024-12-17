@@ -54,11 +54,7 @@ export async function POST(req: NextApiRequest){
                 secretKey,
                 {expiresIn:'24h'}
             )
-            if(type === 'guardian'){
-                user = new User({ fullname, username, email, password:hashedpassword, connections:[], verificationToken });
-            }else{
-                user = new User({ fullname, username, email, password:hashedpassword, connections:[], verificationToken });
-            }
+                user = new User({ fullname, username, email, password:hashedpassword, connections:[], verificationToken, role:type });
             await user.save();
             let text = `visit this link to verify your mail link`;
             handleEmailVerification('verification of email', text, email, text);
@@ -83,7 +79,7 @@ export async function POST(req: NextApiRequest){
                 throw new Error('Secret key is not defined. Please set JWT_SECRET_KEY in your .env.local file.'); 
             }
 
-            const decodedtoken = await verifyToken(token);
+            const decodedtoken = jwt.verify(token,secretKey);
             if(!decodedtoken){
                 return NextResponse.json({
                     err:"invalid token"
@@ -94,17 +90,17 @@ export async function POST(req: NextApiRequest){
                     err:'invalid token'
                 },{status:403})
             }
-            
-            if(type === 'guardian'){
-                user = await User.findOne({email:decodedtoken.email});
-            }else{
-                user = await User.findOne({email:decodedtoken.email});
-            }
+            const currentTime = Date.now();
+                user = await User.findOne({
+                    email:decodedtoken.email,
+                    verificationToken:token,
+                    tokenExpires:{$gt:currentTime}
+                });
 
             if(!user){
                 return NextResponse.json({
                     err:"Invalid token"
-                },{status:400})
+                },{status:401})
             }
             
             if(Date.now() > user.tokenExpires){
@@ -119,22 +115,14 @@ export async function POST(req: NextApiRequest){
                 )
                 let text = `visit this link to verify your mail link`;
                 handleEmailVerification('verification of email', text, decodedtoken.email, text);
-                if(type === 'guardian'){
                     await User.updateOne({email:decodedtoken.email},{verificationToken, tokenExpires:Date.now() + 24*60*60*1000,})
-                }else{
-                    await User.updateOne({email:decodedtoken.email},{ verificationToken, tokenExpires:Date.now() + 24*60*60*1000,})
-                }
                 return NextResponse.json({
                     err:"token expired resending link to user"
                 },{status:400})
             }
 
             if(!user.isVerified){
-                if(type === 'guardian'){
                     await User.updateOne({email:decodedtoken.email},{isverified:true, verificationToken: null, tokenExpires:null})
-                }else{
-                    await User.updateOne({email:decodedtoken.email},{isverified:true, verificationToken: null, tokenExpires:null})
-                }
             }
 
             return NextResponse.json({
@@ -190,7 +178,7 @@ export async function POST(req: NextApiRequest){
                 throw new Error('Secret key is not defined. Please set JWT_SECRET_KEY in your .env.local file.'); 
             }
             const verificationToken = jwt.sign(
-                {type:user.role, email:user.email, id:user._id},
+                {type:user.role, email:user.email, id:user._id, auth:true, username:user.username},
                 secretKey,
                 {expiresIn:'24h'}
             )

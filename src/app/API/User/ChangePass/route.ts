@@ -1,7 +1,6 @@
 import { NextApiRequest } from 'next';
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
 
 import { User } from '@/app/lib/models/mongoose_models/user';
 import dbconnect from '@/app/lib/db';
@@ -10,7 +9,7 @@ import { verifyToken } from '@/app/lib/middleware/verifyToken';
 
 export async function POST(req: NextApiRequest){
     try {
-        const token = req.cookies._parsed.get('authToken');
+        const token = req.cookies._parsed.get('authToken').value;
         if(!token) {
             return NextResponse.json({
                 err:"Unauthorized access"
@@ -43,9 +42,9 @@ export async function POST(req: NextApiRequest){
             chunk += decoder.decode(value,{stream:true});
         }
         const data = JSON.parse(chunk);
-        const { oldpass, newpass, type} = data;
+        const { oldpass, newpass} = data;
         
-        if(!oldpass || !newpass || !type){
+        if(!oldpass || !newpass){
             return NextResponse.json({
                 err:"provide all the necessary information"
             },{status:400})
@@ -59,16 +58,18 @@ export async function POST(req: NextApiRequest){
 
         const hashedpassword = await bcrypt.hash(newpass, 10);
         let user;
-        if(type==='guardian'){
-                user = await User.findOne({email});
-            }else{
-                user = await User.findOne({email});
-            }
+        const currentTime =Date.now();
+                user = await User.findOne({
+                    email,
+                    verificationToken:token.value,
+                    tokenExpires:{$gt: currentTime},
+                    isverified:true
+                });
 
-        if(!user || !user.isverified){
+        if(!user){
             return NextResponse.json({
-                err:"No user with such user exists or user is not verified yet"
-            },{status:400})
+                err:"invalid user try to log in again."
+            },{status:401})
         }
 
         const issame =await bcrypt.compare(oldpass, user.password);

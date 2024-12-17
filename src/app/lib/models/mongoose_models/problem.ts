@@ -62,7 +62,12 @@ const samplePaperSchema = new mongoose.Schema({
     ],
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'Guardian', required: true },
     createdAt: { type: Date, default: Date.now },
-    responses:[{type:mongoose.Schema.Types.ObjectId, ref:'Activites', default:[]}]
+    responses:[{type:mongoose.Schema.Types.ObjectId, ref:'Activites', default:[]}],
+    isdeleted:{
+        type:Boolean,
+        default:false,
+        _id:false
+    }
 });
 
 const childActivitySchema = new mongoose.Schema({

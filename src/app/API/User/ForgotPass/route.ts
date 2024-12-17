@@ -40,15 +40,18 @@ export async function POST(req: NextApiRequest){
                 },{status:400})
             }
             await dbconnect();
-                user = await User.findOne({email});
+            const token = jwt.sign({email},secretKey,{expiresIn:'24h'});
+            const extime = Date.now() + 24 * 60 * 60 * 1000;
+                user = await User.updateOne({
+                    email,
+                    isVerified:true,
+                },{verificationToken:token,tokenExpires:extime});
     
-            if(!user || !user.isverified){
+            if(user.modifiedCount == 0){
                 return NextResponse.json({
-                    err:"No user with such user exists or user is not verified yet"
+                    err:"invalid request"
                 },{status:400})
             }
-            
-            const token = await jwt.sign({email},secretKey,{expiresIn:'24h'});
             
             let text = `visit this link to verify your mail link ${token}`;
             handleEmailVerification('verification of email', text, email, text);
@@ -72,29 +75,28 @@ export async function POST(req: NextApiRequest){
                 },{status:401})
             }
 
-            if(!decodedtoken.email){
-                return NextResponse.json({
-                    err:"invalid token"
-                },{status:400})
-            }
-
             const hashedpass = await bcrypt.hash(password,10);
+            const currentTime = Date.now();
+            await dbconnect();
+                user = await User.updateOne({
+                    email:decodedtoken.email,
+                    verificationToken:token,
+                    tokenExpires:{$gt:currentTime}
+                },{
+                    password:hashedpass
+                });
 
-                user = await User.findOne({email:decodedtoken.email});
-
-                if(!user){
+                if(user.modifiedCount == 0){
                     return NextResponse.json({
-                        err:"invalid token"
+                        err:"invalid request or timeout please try to fogot token once more"
                     },{status:400})
                 }
 
-                await User.updateOne({email:decodedtoken.email},{password:hashedpass})
 
             return NextResponse.json({success:true, message:"password updated successfully"},{status:200})
         }
         
     } catch (error) {
-        console.log(error)
         if (error.name === 'TokenExpiredError') {
         return NextResponse.json({err:"token expired"},{status:401})
         }
