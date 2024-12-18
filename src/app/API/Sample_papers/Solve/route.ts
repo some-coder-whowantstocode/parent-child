@@ -2,9 +2,10 @@ import { NextApiRequest } from "next";
 import { NextResponse } from "next/server";
 import jwt from 'jsonwebtoken';
 import { ReadStream } from "@/app/lib/streamReader";
-import { Samplepaper } from "@/app/lib/models/mongoose_models/problem";
+import { Activities, Samplepaper } from "@/app/lib/models/mongoose_models/problem";
 import { User } from "@/app/lib/models/mongoose_models/user";
 import { verifyToken } from "@/app/lib/middleware/verifyToken";
+import dbconnect from "@/app/lib/db";
 
 export async function POST(req: NextApiRequest) {
     try {
@@ -17,7 +18,8 @@ export async function POST(req: NextApiRequest) {
         }
 
         const decoded = await verifyToken(token);
-
+        
+        await dbconnect();
         const user = await User.findOne({ username: decoded?.username }).select("isdeleted");
 
         if (!user || user.isdeleted) {
@@ -76,7 +78,8 @@ export async function POST(req: NextApiRequest) {
                 case 'true-false': {
                     if (questions[i].correctAnswer === answers[i].answer) {
                         const mark = questions[i].score;
-                        answers[i].score = mark;
+                        answers[i] = {...answers[i],score:mark};
+                        // answers[i].score = mark;
                         score += mark;
                     }
                     break;
@@ -91,7 +94,7 @@ export async function POST(req: NextApiRequest) {
                                     Question Type: ${questions[i].questionType}`;
                     const result = await model.generateContent(prompt);
                     let mark = Number(result.response.text());
-                    console.log(mark);
+                    console.log(answers[i]);
                     answers[i].score = mark;
                     score += mark;
                     break;
@@ -99,17 +102,20 @@ export async function POST(req: NextApiRequest) {
             }
         }
 
-        const samplepaper = new Samplepaper({
+        const activity = new Activities({
             child: user._id,
             samplePaper: questionid,
             answers,
-            timeSpent
+            timeSpent,
+            totalScore:score,
+            status:1
         });
 
-        await samplepaper.save();
+        await activity.save();
 
         return NextResponse.json({ message: "Answer submitted successfully" }, { status: 201 });
     } catch (error) {
+        console.log(error)
         return NextResponse.json({ err: "Something went wrong" }, { status: 500 });
     }
 }

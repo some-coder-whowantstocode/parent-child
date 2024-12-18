@@ -24,7 +24,7 @@ export async function POST(req:NextApiRequest){
         const decoded = await verifyToken(token);
         
         const data = await ReadStream(req.body);
-        const {title, questions} = data;
+        const {title, questions, correctAnswer} = data;
             
         if(!title || !questions){
             return NextResponse.json({
@@ -67,7 +67,8 @@ export async function POST(req:NextApiRequest){
             title,
             questions,
             totalScore,
-            createdBy:user._id
+            createdBy:user._id,
+            correctAnswer
         })
 
         const paper = await samplepaper.save();

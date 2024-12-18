@@ -37,7 +37,7 @@ const questionSchema = new mongoose.Schema({
 },{_id:false});
 
 const answerSchema = new mongoose.Schema({
-    questionId: { type: mongoose.Schema.Types.ObjectId, ref: 'Question', required: true },
+    // questionId: { type: mongoose.Schema.Types.ObjectId, ref: 'Question', required: true },
     answer: { 
         type: mongoose.Schema.Types.Mixed, 
         required: true,
@@ -47,7 +47,7 @@ const answerSchema = new mongoose.Schema({
         type:Number,
         default:0,
         max:10,
-        min:1
+        min:0
     }
 },{_id:false});
 
@@ -98,7 +98,7 @@ const childActivitySchema = new mongoose.Schema({
         type:Number,
         default:0,
         max:100,
-        min:10
+        min:0
     },
     status:{
         type:Number,
