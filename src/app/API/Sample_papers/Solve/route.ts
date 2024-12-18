@@ -1,66 +1,115 @@
 import { NextApiRequest } from "next";
 import { NextResponse } from "next/server";
 import jwt from 'jsonwebtoken';
-
 import { ReadStream } from "@/app/lib/streamReader";
 import { Samplepaper } from "@/app/lib/models/mongoose_models/problem";
-import { Child } from "@/app/lib/models/mongoose_models/user";
+import { User } from "@/app/lib/models/mongoose_models/user";
+import { verifyToken } from "@/app/lib/middleware/verifyToken";
 
-export async function POST(req:NextApiRequest){
+export async function POST(req: NextApiRequest) {
     try {
         const data = await ReadStream(req.body);
-        const {questionid, answers, timeSpent} = data;
-        const token = req.cookies.authToken;
-        if(!token) {
-            return NextResponse.json({
-                err:"Unauthorized access"
-            },{status:401})
-        }
-        
-        const secretKey = process.env.SECRET_KEY;
-        if(!secretKey){
-            throw new Error("Secret key is not defined");
-        }
-        const decoded = await jwt.verify(token, secretKey);
-        const { email } = decoded;
+        const { questionid, answers, timeSpent } = data;
+        const token = req.cookies._parsed.get("authToken").value;
 
-        const user = await Child.findOne({email});
-
-        if(!user){
-            return NextResponse.json({
-                err:"Unauthorized access"
-            },{status:401})
+        if (!token) {
+            return NextResponse.json({ err: "Unauthorized access" }, { status: 401 });
         }
 
-        const question = await Samplepaper.exists({_id:questionid});
+        const decoded = await verifyToken(token);
 
-        if(!question){
-            return NextResponse.json({
-                err:"NO such question exists"
-            },{status:400})
+        const user = await User.findOne({ username: decoded?.username }).select("isdeleted");
+
+        if (!user || user.isdeleted) {
+            return NextResponse.json({ err: "Unauthorized access" }, { status: 401 });
         }
 
-        if(!questionid || !answers || !timeSpent){
-            return NextResponse.json({
-                err:"questionid, timeSpent and answers are required"
-            },{status:400})
+        const { questions, isdeleted } = await Samplepaper.findOne({ _id: questionid }).select("questions isdeleted");
+
+        if (!questions || isdeleted) {
+            return NextResponse.json({ err: "No such question exists" }, { status: 400 });
+        }
+
+        if (!questionid || !answers || !timeSpent) {
+            return NextResponse.json({ err: "questionid, timeSpent and answers are required" }, { status: 400 });
+        }
+
+        let score = 0;
+
+        const { GoogleGenerativeAI } = require("@google/generative-ai");
+        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+        for (let i = 0; i < answers.length && i < questions.length; i++) {
+            switch (questions[i].questionType) {
+                case 'multiple-choice': {
+                    if (questions[i].correctAnswer === answers[i].answer) {
+                        const mark = questions[i].score;
+                        answers[i].score = mark;
+                        score += mark;
+                    }
+                    break;
+                }
+                case 'match-up': {
+                    if (JSON.stringify(answers[i].answer) === JSON.stringify(questions[i].correctAnswer)) {
+                        const mark = questions[i].score;
+                        answers[i].score = mark;
+                        score += mark;
+                    }
+                    break;
+                }
+                case 'chronological-order': {
+                    let correct = true;
+                    for (let j = 0; j < questions[i].correctAnswer.length; j++) {
+                        if (answers[i].answer[j] !== questions[i].chronologicalOrder[questions[i].correctAnswer[j]]) {
+                            correct = false;
+                            break;
+                        }
+                    }
+                    if (correct) {
+                        const mark = questions[i].score;
+                        answers[i].score = mark;
+                        score += mark;
+                    }
+                    break;
+                }
+                case 'true-false': {
+                    if (questions[i].correctAnswer === answers[i].answer) {
+                        const mark = questions[i].score;
+                        answers[i].score = mark;
+                        score += mark;
+                    }
+                    break;
+                }
+                default: {
+                    const prompt = `Question: ${questions[i].questionText} 
+                                    Correct Answer: ${questions[i].correctAnswer} 
+                                    Given Answer: ${answers[i].answer} 
+                                    Match the given answer to the correct answer and grade the similarity. 
+                                    Only return a number between 0 and ${questions[i].score}. 
+                                    If the given answer is empty, return 0. 
+                                    Question Type: ${questions[i].questionType}`;
+                    const result = await model.generateContent(prompt);
+                    let mark = Number(result.response.text());
+                    console.log(mark);
+                    answers[i].score = mark;
+                    score += mark;
+                    break;
+                }
+            }
         }
 
         const samplepaper = new Samplepaper({
             child: user._id,
-            samplePaper:questionid,
+            samplePaper: questionid,
             answers,
             timeSpent
-        })
+        });
 
-        samplepaper.save();
+        await samplepaper.save();
 
-        return NextResponse.json({
-            message:"answer submitted successfully"
-        },{status:201})
+        return NextResponse.json({ message: "Answer submitted successfully" }, { status: 201 });
     } catch (error) {
-        return NextResponse.json({
-            err:"something went wrong "
-        },{status:500})
+        return NextResponse.json({ err: "Something went wrong" }, { status: 500 });
     }
 }

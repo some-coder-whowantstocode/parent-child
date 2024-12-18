@@ -2,11 +2,12 @@ import { NextApiRequest } from 'next';
 import { NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
 
-import { Child } from '@/app/lib/models/mongoose_models/user';
+import { User } from '@/app/lib/models/mongoose_models/user';
+import { verifyToken } from '@/app/lib/middleware/verifyToken';
 
 export async function GET(req: NextApiRequest) {
     try {
-        const token = req.cookies.authToken;
+        const token = req.cookies._parsed.get('authToken').value;
         if (!token) {
             return NextResponse.json({ err: "Unauthorized access" }, { status: 401 });
         }
@@ -16,12 +17,12 @@ export async function GET(req: NextApiRequest) {
             throw new Error("Secret key is not defined");
         }
 
-        const decoded = jwt.verify(token, secretKey);
-        const { email } = decoded;
+        const decoded = await verifyToken(token);
+        // const { username } = decoded;
 
-        const child = await Child.findOne({ email });
-        if (!child) {
-            return NextResponse.json({ err: "child not found" }, { status: 404 });
+        const child = await User.findOne({ username:decoded?.username }).select("activities isdeleted");
+        if (!child || child.isdeleted) {
+            return NextResponse.json({ err: "Login to see this." }, { status: 404 });
         }
 
         return NextResponse.json({ activities: child.activities}, { status: 200 });

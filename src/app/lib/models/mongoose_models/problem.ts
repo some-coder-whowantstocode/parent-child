@@ -6,8 +6,8 @@ const optionSchema = new mongoose.Schema({
 },{_id:false})
 
 const matchPairSchema = new mongoose.Schema({
-    left:{type:String, required:true},
-    right:{type:String, required:true}
+    text:{type:String, required:true},
+    // right:{type:String, required:true}
 },{_id:false})
 
 const questionSchema = new mongoose.Schema({
@@ -19,22 +19,21 @@ const questionSchema = new mongoose.Schema({
     },
     questionType: { type: String, enum: [
         'multiple-choice', 
-        'assertion-reason',
         'fill-in-the-blank',
         'match-up',
         'chronological-order',
         'true-false',
         'short-answer',
         'long-answer',
-        'case-based',
         'map-based',
     ], required: true },
     options: [optionSchema],
-    correctAnswer:{type:mongoose.Schema.Types.Mixed},
+    correctAnswer:{type:mongoose.Schema.Types.Mixed,required:true},
     matchPairs:[matchPairSchema],
-    chronologicalOrder:[{type:String}],
+    chronologicalOrder:[{type:Number}],
     mapDetails:{type:String},
-    caseText:{type:String}
+    caseText:{type:String},
+    score:{type:Number,required:true,max:10,min:1}
 },{_id:false});
 
 const answerSchema = new mongoose.Schema({
@@ -44,7 +43,12 @@ const answerSchema = new mongoose.Schema({
         required: true,
         max:[500,"Answer length can not exceed 500"]
     },
-    isCorrect: { type: Boolean, required: true }
+    score:{
+        type:Number,
+        default:0,
+        max:10,
+        min:1
+    }
 },{_id:false});
 
 const samplePaperSchema = new mongoose.Schema({
@@ -67,15 +71,40 @@ const samplePaperSchema = new mongoose.Schema({
         type:Boolean,
         default:false,
         _id:false
+    },
+    totalScore:{
+        type:Number,
+        required:[true,"score is required for the sample paper"],
+        max:100,
+        min:10
     }
 });
 
 const childActivitySchema = new mongoose.Schema({
     child: { type: mongoose.Schema.Types.ObjectId, ref: 'Child', required: true },
     samplePaper: { type: mongoose.Schema.Types.ObjectId, ref: 'SamplePaper', required: true },
-    answers: [answerSchema],
+    answers: [{
+        type:answerSchema,
+        validate:{
+            validator: function(arr:[]){
+                return arr.length <= 10 && arr.length >= 1;
+            },
+            message:"There must be at least one answer and not more than ten answers."
+        }
+    }],
     timeSpent: { type: Number, required: true },
-    createdAt: { type: Date, default: Date.now }
+    createdAt: { type: Date, default: Date.now },
+    totalScore:{
+        type:Number,
+        default:0,
+        max:100,
+        min:10
+    },
+    status:{
+        type:Number,
+        enum:[0,1,2],
+        default:0
+    }
 });
 
 const Samplepaper = mongoose.models.Samplepaper || mongoose.model('Samplepaper', samplePaperSchema);

@@ -1,0 +1,39 @@
+"filename", "language", "JSON with Comments", "TypeScript", "JSON", "TypeScript JSX", "CSS", "Batch", "Markdown", "comment", "blank", "total"
+"/home/somecoder/Documents/web/web project/student-teacher/client/README.md", "Markdown", 0, 0, 0, 0, 0, 0, 23, 0, 14, 37
+"/home/somecoder/Documents/web/web project/student-teacher/client/next.config.ts", "TypeScript", 0, 4, 0, 0, 0, 0, 0, 1, 3, 8
+"/home/somecoder/Documents/web/web project/student-teacher/client/package-lock.json", "JSON", 0, 0, 1907, 0, 0, 0, 0, 0, 1, 1908
+"/home/somecoder/Documents/web/web project/student-teacher/client/package.json", "JSON", 0, 0, 31, 0, 0, 0, 0, 0, 1, 32
+"/home/somecoder/Documents/web/web project/student-teacher/client/run-curl.bat", "Batch", 0, 0, 0, 0, 0, 5, 0, 0, 1, 6
+"/home/somecoder/Documents/web/web project/student-teacher/client/src/app/API/Sample_papers/Create/route.ts", "TypeScript", 0, 70, 0, 0, 0, 0, 0, 0, 16, 86
+"/home/somecoder/Documents/web/web project/student-teacher/client/src/app/API/Sample_papers/DeletebyId/route.ts", "TypeScript", 0, 67, 0, 0, 0, 0, 0, 0, 9, 76
+"/home/somecoder/Documents/web/web project/student-teacher/client/src/app/API/Sample_papers/GetActivitybyId/route.ts", "TypeScript", 0, 35, 0, 0, 0, 0, 0, 0, 6, 41
+"/home/somecoder/Documents/web/web project/student-teacher/client/src/app/API/Sample_papers/Getallactivities/route.ts", "TypeScript", 0, 26, 0, 0, 0, 0, 0, 0, 7, 33
+"/home/somecoder/Documents/web/web project/student-teacher/client/src/app/API/Sample_papers/Getallsamplepapers/route.ts", "TypeScript", 0, 28, 0, 0, 0, 0, 0, 0, 6, 34
+"/home/somecoder/Documents/web/web project/student-teacher/client/src/app/API/Sample_papers/GetbyIdsamplepaper/route.ts", "TypeScript", 0, 46, 0, 0, 0, 0, 0, 0, 10, 56
+"/home/somecoder/Documents/web/web project/student-teacher/client/src/app/API/Sample_papers/Solve/route.ts", "TypeScript", 0, 55, 0, 0, 0, 0, 0, 0, 11, 66
+"/home/somecoder/Documents/web/web project/student-teacher/client/src/app/API/User/Auth/route.ts", "TypeScript", 0, 195, 0, 0, 0, 0, 0, 0, 19, 214
+"/home/somecoder/Documents/web/web project/student-teacher/client/src/app/API/User/ChangePass/route.ts", "TypeScript", 0, 79, 0, 0, 0, 0, 0, 0, 16, 95
+"/home/somecoder/Documents/web/web project/student-teacher/client/src/app/API/User/ForgotPass/route.ts", "TypeScript", 0, 90, 0, 0, 0, 0, 0, 0, 15, 105
+"/home/somecoder/Documents/web/web project/student-teacher/client/src/app/API/User/HandleConnection/accept/route.ts", "TypeScript", 0, 84, 0, 0, 0, 0, 0, 0, 17, 101
+"/home/somecoder/Documents/web/web project/student-teacher/client/src/app/API/User/HandleConnection/cancel/route.ts", "TypeScript", 0, 72, 0, 0, 0, 0, 0, 0, 12, 84
+"/home/somecoder/Documents/web/web project/student-teacher/client/src/app/API/User/HandleConnection/disconnect/route.ts", "TypeScript", 0, 77, 0, 0, 0, 0, 0, 0, 12, 89
+"/home/somecoder/Documents/web/web project/student-teacher/client/src/app/API/User/HandleConnection/reject/route.ts", "TypeScript", 0, 77, 0, 0, 0, 0, 0, 0, 12, 89
+"/home/somecoder/Documents/web/web project/student-teacher/client/src/app/API/User/HandleConnection/request/route.ts", "TypeScript", 0, 120, 0, 0, 0, 0, 0, 0, 13, 133
+"/home/somecoder/Documents/web/web project/student-teacher/client/src/app/API/User/RemoveUser/route.ts", "TypeScript", 0, 107, 0, 0, 0, 0, 0, 0, 22, 129
+"/home/somecoder/Documents/web/web project/student-teacher/client/src/app/Auth/page.tsx", "TypeScript JSX", 0, 0, 0, 8, 0, 0, 0, 0, 4, 12
+"/home/somecoder/Documents/web/web project/student-teacher/client/src/app/Sample_papers/[id]/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 0, 1, 1
+"/home/somecoder/Documents/web/web project/student-teacher/client/src/app/Sample_papers/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 0, 1, 1
+"/home/somecoder/Documents/web/web project/student-teacher/client/src/app/globals.css", "CSS", 0, 0, 0, 0, 0, 0, 0, 0, 1, 1
+"/home/somecoder/Documents/web/web project/student-teacher/client/src/app/layout.tsx", "TypeScript JSX", 0, 0, 0, 19, 0, 0, 0, 0, 3, 22
+"/home/somecoder/Documents/web/web project/student-teacher/client/src/app/lib/db.ts", "TypeScript", 0, 34, 0, 0, 0, 0, 0, 0, 6, 40
+"/home/somecoder/Documents/web/web project/student-teacher/client/src/app/lib/emailverification.ts", "TypeScript", 0, 29, 0, 0, 0, 0, 0, 0, 7, 36
+"/home/somecoder/Documents/web/web project/student-teacher/client/src/app/lib/middleware/verifyToken.ts", "TypeScript", 0, 21, 0, 0, 0, 0, 0, 0, 3, 24
+"/home/somecoder/Documents/web/web project/student-teacher/client/src/app/lib/models/Auth/signup.ts", "TypeScript", 0, 13, 0, 0, 0, 0, 0, 0, 1, 14
+"/home/somecoder/Documents/web/web project/student-teacher/client/src/app/lib/models/db.d.ts", "TypeScript", 0, 7, 0, 0, 0, 0, 0, 0, 2, 9
+"/home/somecoder/Documents/web/web project/student-teacher/client/src/app/lib/models/mongoose_models/problem.ts", "TypeScript", 0, 110, 0, 0, 0, 0, 0, 0, 8, 118
+"/home/somecoder/Documents/web/web project/student-teacher/client/src/app/lib/models/mongoose_models/user.ts", "TypeScript", 0, 87, 0, 0, 0, 0, 0, 0, 7, 94
+"/home/somecoder/Documents/web/web project/student-teacher/client/src/app/lib/streamReader.ts", "TypeScript", 0, 15, 0, 0, 0, 0, 0, 0, 0, 15
+"/home/somecoder/Documents/web/web project/student-teacher/client/src/app/page.module.css", "CSS", 0, 0, 0, 0, 0, 0, 0, 0, 1, 1
+"/home/somecoder/Documents/web/web project/student-teacher/client/src/app/page.tsx", "TypeScript JSX", 0, 0, 0, 7, 0, 0, 0, 0, 1, 8
+"/home/somecoder/Documents/web/web project/student-teacher/client/tsconfig.json", "JSON with Comments", 27, 0, 0, 0, 0, 0, 0, 0, 1, 28
+"Total", "-", 27, 1548, 1938, 34, 0, 5, 23, 1, 270, 3846
