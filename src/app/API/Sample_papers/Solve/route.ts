@@ -10,14 +10,21 @@ import dbconnect from "@/app/lib/db";
 export async function POST(req: NextApiRequest) {
     try {
         const data = await ReadStream(req.body);
-        const { questionid, answers, timeSpent } = data;
+        const { questionid, answers, timeSpent, distractiontime, timesgotdistracted } = data;
         const token = req.cookies._parsed.get("authToken").value;
 
         if (!token) {
             return NextResponse.json({ err: "Unauthorized access" }, { status: 401 });
         }
 
-        const decoded = await verifyToken(token);
+        try {
+            
+            const decoded = await verifyToken(token);
+        } catch (error) {
+            console.log(error.message)
+            return NextResponse.json({ err:error.message || "Unauthorized access" }, { status: 401 });
+        }
+
         
         await dbconnect();
         const user = await User.findOne({ username: decoded?.username }).select("isdeleted");
@@ -112,6 +119,8 @@ export async function POST(req: NextApiRequest) {
         });
 
         await activity.save();
+
+        await User.updateOne({username: decoded?.username},{$push:{activities:activity._id}})
 
         return NextResponse.json({ message: "Answer submitted successfully" }, { status: 201 });
     } catch (error) {
