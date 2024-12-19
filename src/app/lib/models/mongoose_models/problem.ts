@@ -64,7 +64,7 @@ const samplePaperSchema = new mongoose.Schema({
             }
         }
     ],
-    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'Guardian', required: true },
+    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     createdAt: { type: Date, default: Date.now },
     responses:[{type:mongoose.Schema.Types.ObjectId, ref:'Activites', default:[]}],
     isdeleted:{
@@ -81,8 +81,8 @@ const samplePaperSchema = new mongoose.Schema({
 });
 
 const childActivitySchema = new mongoose.Schema({
-    child: { type: mongoose.Schema.Types.ObjectId, ref: 'Child', required: true },
-    samplePaper: { type: mongoose.Schema.Types.ObjectId, ref: 'SamplePaper', required: true },
+    child: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    samplePaper: { type: mongoose.Schema.Types.ObjectId, ref: 'Samplepaper', required: true },
     answers: [{
         type:answerSchema,
         validate:{
@@ -107,8 +107,8 @@ const childActivitySchema = new mongoose.Schema({
     }
 });
 
-const Samplepaper = mongoose.models.Samplepaper || mongoose.model('Samplepaper', samplePaperSchema);
 const Activities = mongoose.models.Activities || mongoose.model('Activities', childActivitySchema);
+const Samplepaper = mongoose.models.Samplepaper || mongoose.model('Samplepaper', samplePaperSchema);
 const Question = mongoose.models.Question || mongoose.model('Question', questionSchema);
 const Answer = mongoose.models.Answer || mongoose.model('Answer', answerSchema);
 

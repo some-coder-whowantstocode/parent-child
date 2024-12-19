@@ -1,6 +1,6 @@
 import { NextApiRequest } from "next";
 import { NextResponse } from "next/server";
-import jwt from 'jsonwebtoken';
+
 import { ReadStream } from "@/app/lib/streamReader";
 import { Activities, Samplepaper } from "@/app/lib/models/mongoose_models/problem";
 import { User } from "@/app/lib/models/mongoose_models/user";
