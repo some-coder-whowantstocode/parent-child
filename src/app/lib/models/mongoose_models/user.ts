@@ -4,15 +4,15 @@ const userSchema = new mongoose.Schema({
     fullname: {
         type: String,
         required: [true, 'Full name is required'],
-        max: [18, 'Fullname is too big (max:18)'],
-        min: [6, 'Fullname is too small (min:6)'],
+        maxlength: [18, 'Fullname is too big (max:18)'],
+        minlength: [6, 'Fullname is too small (min:6)'],
         match: [/^[a-zA-Z0-9 _-]+$/, 'No symbols are allowed in username'],
     },
     username: {
         type: String,
         required: [true, 'username is required'],
-        max: [18, 'username is too big (max:18)'],
-        min: [6, 'username is too small (min:6)'],
+        maxlength: [18, 'username is too big (max:18)'],
+        minlength: [6, 'username is too small (min:6)'],
         match: [/^[a-zA-Z0-9 _-]+$/, 'No symbols are allowed in username except _-'],
         unique: [true, 'username is already taken']
     },
@@ -25,13 +25,16 @@ const userSchema = new mongoose.Schema({
     password: {
         type: String,
         required: true,
-        max: [12, 'password is too big (max:12)'],
-        min: [6, 'password is too small (min:6)'],
+        maxlength: [12, 'password is too big (max:12)'],
+        minlength: [6, 'password is too small (min:6)'],
     },
     role: {
         default: 'guardian',
         type: String,
-        enum:['guardian','child'],
+        enum: {
+            values: ['guardian','child'],
+            message: '{VALUE} is not supported'
+          },
         immutable: true
     },
     Connections:[{

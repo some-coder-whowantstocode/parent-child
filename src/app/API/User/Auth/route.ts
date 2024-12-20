@@ -52,11 +52,13 @@ export async function POST(req: NextApiRequest) {
     const secretKey = process.env.SECRET_KEY;
     if (!secretKey) {
       throw new Error(
-        "Secret key is not defined. Please set JWT_SECRET_KEY in your .env.local file."
+        "Secret key not found."
       );
     }
     const data: reqbody = JSON.parse(chunks);
+
     await dbconnect();
+
     if (data.create) {
       let user;
       const { fullname, username, email, password, type } = data;
@@ -306,18 +308,18 @@ export async function POST(req: NextApiRequest) {
       { status: 400 }
     );
   } catch (error: Error | any) {
+
     let errmsg = null;
+
     if (error.name === "MongoNetworkError") {
       errmsg = "Network error: "+ error.message;
     } else if (error.name === "MongoTimeoutError") {
       errmsg = "Timeout error: " + error.message;
-    }
-    switch (error.code) {
-      case 11000:
-        {
-              errmsg = "user already exists."
-        }
-        break;
+    } else if (error.name === 'ValidationError') {
+      let verr : Error | any =Object.values(error.errors)[0]; 
+      errmsg = verr.message
+    } else if (error.code === 11000) {
+      errmsg = `${Object.keys(error.errorResponse.keyValue)[0]} already exists, please choose another.`
     }
 
     return NextResponse.json(
