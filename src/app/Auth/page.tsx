@@ -17,6 +17,40 @@ const page = () => {
     }, 300);
   }
 
+  async function createAccount(e:React.FormEvent<HTMLFormElement>){
+    try {
+      e.preventDefault();
+
+
+      let inputdata = e.target as HTMLFormElement;
+      let data = new FormData(inputdata);
+
+      const objectdata : {[key:string]:FormDataEntryValue} = {};
+      for(const [key, value] of data){
+        objectdata[key] = value;
+      }
+      objectdata['type'] = type? 'guardian' : 'child';
+      objectdata['create'] = 'true';
+
+      const url = '/API/User/Auth';
+
+      let stringdata = JSON.stringify(objectdata);
+
+      const response = await fetch(url,{
+        method:'POST',
+        headers:{
+          "Content-Type":"application/json"
+        },
+        body:stringdata
+      });
+      const result = await response.json()
+      console.log(result);
+      
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   return (
     <div
     className={style.authPage}
@@ -29,6 +63,9 @@ const page = () => {
       ></div>
       <div
       className={style.shape2}
+      ></div>
+      <div
+      className={style.shape3}
       ></div>
       <div
       className={style.auth}
@@ -56,7 +93,7 @@ const page = () => {
           <div
           className={style.title}
           >Sign Up</div>
-          <form action="">
+          <form onSubmit={(e)=>createAccount(e)} >
             <div>
             <p>username</p>
             <input type="text" name='username' placeholder='superJohn' className={style.datainput}/>
@@ -73,11 +110,12 @@ const page = () => {
             <p>password</p>
             <input type="password" name='password' placeholder='password' className={style.datainput}/>
             </div>
+            <p className={style.typetext}>what type of account do you want to create</p>
             <div>
-              <input type="button" value="guardian" name='type' className={style.typebtn}/>
-              <input type="button" value="child" name='type' className={style.typebtn}/>
+              <input type="button" onClick={()=>settype(true)} value="guardian" name='type' className={`${style.typebtn} ${type && style.selected}`}/>
+              <input type="button" onClick={()=>settype(false)} value="child" name='type' className={`${style.typebtn} ${!type && style.selected}`}/>
             </div>
-            <input type="submit" value="Create Account" />
+            <input type="submit" className={style.submitbtn} value="Create Account" />
           </form>
         </div>
         }
@@ -108,29 +146,17 @@ const page = () => {
         >
           <div
           className={style.title}
-          >Sign Up</div>
+          >Log In</div>
           <form action="">
             <div>
-            <p>username</p>
-            <input type="text" name='username' placeholder='superJohn' className={style.datainput}/>
-            </div>
-            <div>
-            <p>fullname</p>
-            <input type="text" name='fullname' placeholder='John Doe' className={style.datainput}/>
-            </div>
-            <div>
-            <p>email</p>
-            <input type="text" name='email' placeholder='JohnDoe@gmail.com' className={style.datainput}/>
+            <p>email or username</p>
+            <input type="text" name='identifier' placeholder='superJohn' className={style.datainput}/>
             </div>
             <div>
             <p>password</p>
             <input type="password" name='password' placeholder='password' className={style.datainput}/>
             </div>
-            <div>
-              <input type="button" value="guardian" name='type' className={style.typebtn}/>
-              <input type="button" value="child" name='type' className={style.typebtn}/>
-            </div>
-            <input type="submit" value="Create Account" />
+            <input type="submit" value="Log in" className={style.submitbtn} />
           </form>
           {/* <div
           className={style.linkbox}
@@ -145,4 +171,4 @@ const page = () => {
   )
 }
 
-export default page
+export default page;
