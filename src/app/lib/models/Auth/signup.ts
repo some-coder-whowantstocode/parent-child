@@ -9,5 +9,6 @@ export interface reqbody {
     login?:boolean,
     verify?:boolean,
     token?:string,
-    identifier?:string
+    identifier?:string,
+    rememberme?:boolean
 }

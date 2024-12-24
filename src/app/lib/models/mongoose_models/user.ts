@@ -25,8 +25,6 @@ const userSchema = new mongoose.Schema({
     password: {
         type: String,
         required: true,
-        maxlength: [12, 'password is too big (max:12)'],
-        minlength: [6, 'password is too small (min:6)'],
     },
     role: {
         default: 'guardian',
@@ -85,9 +83,11 @@ const userSchema = new mongoose.Schema({
     }
 })
 
-userSchema.index({ email:1 },{unique:true});
-userSchema.index({ email:1,'connectionRequests.id': 1 },{unique:true});
-userSchema.index({ email:1,'connectionRequested.id': 1 },{unique:true});
+if(!mongoose.models.User && process.env.NODE_ENV === 'production'){
+    userSchema.index({ email:1 },{unique:true});
+    userSchema.index({ email:1,'connectionRequests.id': 1 },{unique:true});
+    userSchema.index({ email:1,'connectionRequested.id': 1 },{unique:true});
+}
 
 const User = mongoose.models.User || mongoose.model("User",userSchema);
 

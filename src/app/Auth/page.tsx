@@ -1,12 +1,19 @@
 'use client'
 import React, { useState } from 'react';
+
 import style from './style.module.css'
+import { useWorker } from '../lib/contexts/workerContext';
+
 
 const page = () => {
 
   const [animate, setanimate] = useState(style.setintro);
   const [turn, setturn] = useState(false);
   const [type, settype] = useState(false);
+
+  const {useauthWorker} = useWorker();
+
+
 
   function change(){
     setanimate(style.setoutro);
@@ -16,40 +23,31 @@ const page = () => {
       clearTimeout(timeid);
     }, 300);
   }
-
-  async function createAccount(e:React.FormEvent<HTMLFormElement>){
+  async function Auth(e:React.FormEvent<HTMLFormElement>,create:boolean){
     try {
       e.preventDefault();
-
-
       let inputdata = e.target as HTMLFormElement;
       let data = new FormData(inputdata);
-
+      
       const objectdata : {[key:string]:FormDataEntryValue} = {};
       for(const [key, value] of data){
         objectdata[key] = value;
       }
-      objectdata['type'] = type? 'guardian' : 'child';
-      objectdata['create'] = 'true';
+      if(create){
+        objectdata['type'] = type? 'guardian' : 'child';
+        objectdata['create'] = 'true';
+      }else{
+        objectdata['login'] = 'true';
 
-      const url = '/API/User/Auth';
-
-      let stringdata = JSON.stringify(objectdata);
-
-      const response = await fetch(url,{
-        method:'POST',
-        headers:{
-          "Content-Type":"application/json"
-        },
-        body:stringdata
-      });
-      const result = await response.json()
-      console.log(result);
+      }
+        
+      useauthWorker(objectdata);
       
     } catch (error) {
       console.log(error)
     }
   }
+
 
   return (
     <div
@@ -93,7 +91,7 @@ const page = () => {
           <div
           className={style.title}
           >Sign Up</div>
-          <form onSubmit={(e)=>createAccount(e)} >
+          <form onSubmit={(e)=>Auth(e,true)} >
             <div>
             <p>username</p>
             <input type="text" name='username' placeholder='superJohn' className={style.datainput}/>
@@ -147,7 +145,7 @@ const page = () => {
           <div
           className={style.title}
           >Log In</div>
-          <form action="">
+          <form onSubmit={(e)=>Auth(e,false)}>
             <div>
             <p>email or username</p>
             <input type="text" name='identifier' placeholder='superJohn' className={style.datainput}/>

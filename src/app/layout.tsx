@@ -1,6 +1,9 @@
+
 import type { Metadata } from "next";
 import "./globals.css";
-import { RecoilRoot } from "recoil";
+import StoreProvider from "./storeProvider";
+import Layout from "./popup/layout";
+import { WorkerProvider } from "./lib/contexts/workerContext";
 
 export const metadata: Metadata = {
   title: "parent-child",
@@ -13,12 +16,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
+    <StoreProvider>
+      <WorkerProvider>
     <html lang="en">
-      <body >
-        <RecoilRoot>
-        {children}
-        </RecoilRoot>
+      <body>
+        <Layout>
+            {children}
+        </Layout>
       </body>
     </html>
+      </WorkerProvider>
+    </StoreProvider>
   );
 }

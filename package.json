@@ -10,12 +10,15 @@
   },
   "dependencies": {
     "@google/generative-ai": "^0.21.0",
+    "@reduxjs/toolkit": "^2.5.0",
     "@types/bcrypt": "^5.0.2",
     "@types/bcryptjs": "^2.4.6",
     "@types/jsonwebtoken": "^9.0.7",
     "@types/mongoose": "^5.11.96",
     "@types/nodemailer": "^6.4.17",
     "bcrypt": "^5.1.1",
+    "cookie": "^1.0.2",
+    "immer": "^10.1.1",
     "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.10.0",
     "mongoose": "^8.8.2",
@@ -24,7 +27,8 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-icons": "^5.4.0",
-    "recoil": "^0.7.7",
+    "react-redux": "^9.2.0",
+    "redux": "^5.0.1",
     "uuid": "^11.0.3"
   },
   "devDependencies": {

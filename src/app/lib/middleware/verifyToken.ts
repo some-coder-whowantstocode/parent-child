@@ -19,7 +19,7 @@ export async function verifyToken(token: string): Promise<TOKEN | null> {
         }
         
         const decodedtoken = jwt.verify(token, secretKey) as TOKEN;
-        
+        console.log(decodedtoken)
         if (decodedtoken && decodedtoken.id && decodedtoken.email && decodedtoken.type && decodedtoken.auth && decodedtoken.username) {
             return decodedtoken;
         }

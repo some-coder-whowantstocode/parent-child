@@ -8,7 +8,8 @@ import { reqbody } from "@/app/lib/models/Auth/signup";
 import dbconnect from "../../../lib/db";
 import { User } from "@/app/lib/models/mongoose_models/user";
 import handleEmailVerification from "@/app/lib/emailverification";
-import { verifyToken } from "@/app/lib/middleware/verifyToken";
+import { BadRequest, Unauthorized } from "../../responses/errors";
+import { serialize } from "cookie";
 
 interface USER {
   isverified: boolean;
@@ -24,10 +25,7 @@ interface USER {
 export async function POST(req: NextApiRequest) {
   try {
     if (!req.body) {
-      return NextResponse.json(
-        { err: "body is required please provide a body" },
-        { status: 400 }
-      );
+      throw new BadRequest("body is required please provide a body");
     }
     const streamdata = req.body;
     const reader = streamdata.getReader();
@@ -41,12 +39,7 @@ export async function POST(req: NextApiRequest) {
       chunks += decoder.decode(value, { stream: true });
     }
     if (!chunks) {
-      return NextResponse.json(
-        {
-          err: "body is missing in the request",
-        },
-        { status: 400 }
-      );
+      throw new BadRequest("body is missing in the request");
     }
 
     const secretKey = process.env.SECRET_KEY;
@@ -64,10 +57,7 @@ export async function POST(req: NextApiRequest) {
       const { fullname, username, email, password, type } = data;
 
       if (!fullname || !username || !email || !password || !type) {
-        return NextResponse.json(
-          { err: "Please provide all required data." },
-          { status: 400 }
-        );
+      throw new BadRequest("please provide all required data");
       }
 
       if (
@@ -77,10 +67,11 @@ export async function POST(req: NextApiRequest) {
         typeof password != "string" &&
         typeof type != "string"
       ) {
-        return NextResponse.json(
-          { err: "The type of the data provided are incorrect" },
-          { status: 400 }
-        );
+      throw new BadRequest("The type of the data provided are incorrect");
+      }
+
+      if(password.length < 6 || password.length > 20){
+      throw new BadRequest("The password must be in between the range of 6 to 20");
       }
 
       const hashedpassword = await bcrypt.hash(password, 10);
@@ -98,7 +89,9 @@ export async function POST(req: NextApiRequest) {
         role: type,
       });
       await user.save();
-      let text = `visit this link to verify your mail link`;
+      const url = process.env.ORIGIN+"/verify/"+verificationToken;
+      const encodeurl = encodeURI(url);
+      let text = `visit this link:${encodeurl} to verify your mail link`;
       handleEmailVerification("verification of email", text, email, text);
       return NextResponse.json(
         {
@@ -113,39 +106,19 @@ export async function POST(req: NextApiRequest) {
     if (data.verify) {
       let user;
       const { token } = data;
-
       if (!token) {
-        return NextResponse.json(
-          {
-            err: "please provide all required data",
-          },
-          { status: 400 }
-        );
+        throw new BadRequest("please provide all required data")
       }
 
       if (typeof token != "string") {
-        return NextResponse.json(
-          { err: "The type of the data provided are incorrect" },
-          { status: 400 }
-        );
+        throw new BadRequest("The type of the data provided are incorrect")
       }
 
-      const decodedtoken = await verifyToken(token);
-      if (!decodedtoken) {
-        return NextResponse.json(
-          {
-            err: "invalid token",
-          },
-          { status: 401 }
-        );
-      }
-      if (!decodedtoken.email) {
-        return NextResponse.json(
-          {
-            err: "invalid token",
-          },
-          { status: 403 }
-        );
+      
+
+      const decodedtoken = await jwt.verify(token, secretKey) as {email:string, fullname:string}
+      if (!decodedtoken || !decodedtoken.email || !decodedtoken.fullname) {
+        throw new Unauthorized("invalid token");
       }
       const currentTime = Date.now();
       user = await User.findOne({
@@ -155,12 +128,7 @@ export async function POST(req: NextApiRequest) {
       });
 
       if (!user) {
-        return NextResponse.json(
-          {
-            err: "Wrong credentials or the link has expired.",
-          },
-          { status: 401 }
-        );
+        throw new Unauthorized("Wrong credentials or the link has expired.");
       }
 
       if (Date.now() > user.tokenExpires) {
@@ -186,12 +154,7 @@ export async function POST(req: NextApiRequest) {
           { email: decodedtoken.email },
           { verificationToken, tokenExpires: Date.now() + 24 * 60 * 60 * 1000 }
         );
-        return NextResponse.json(
-          {
-            err: "token expired resending link to user",
-          },
-          { status: 400 }
-        );
+        throw new BadRequest("token expired resending link to user");
       }
 
       if (!user.isVerified) {
@@ -204,29 +167,23 @@ export async function POST(req: NextApiRequest) {
       return NextResponse.json(
         {
           verified: true,
+          success:true,
+          message:"successfully verified"
         },
         { status: 200 }
       );
     }
 
     if (data.login) {
-      const { identifier, password } = data;
+      const { identifier, password, rememberme } = data;
       const regex =
         /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/g;
       if (!identifier || !password) {
-        return NextResponse.json(
-          {
-            err: "please provide all required data",
-          },
-          { status: 400 }
-        );
+        throw new BadRequest("please provide all required data");
       }
 
       if (typeof identifier != "string" && typeof password != "string") {
-        return NextResponse.json(
-          { err: "The type of the data provided are incorrect" },
-          { status: 400 }
-        );
+        throw new BadRequest("The type of the data provided are incorrect");
       }
 
       let query;
@@ -246,30 +203,15 @@ export async function POST(req: NextApiRequest) {
         return null;
       })();
       if (!user) {
-        return NextResponse.json(
-          {
-            err: "invalid user information",
-          },
-          { status: 400 }
-        );
+        throw new BadRequest("invalid user information");
       }
       if (!user.isverified) {
-        return NextResponse.json(
-          {
-            err: "user is not verified, please verify first",
-          },
-          { status: 403 }
-        );
+        throw new Unauthorized("user is not verified, please verify first");
       }
       const issame = await bcrypt.compare(password, user.password);
 
       if (!issame) {
-        return NextResponse.json(
-          {
-            err: "invalid user information",
-          },
-          { status: 400 }
-        );
+        throw new BadRequest("invalid user information");
       }
       const secretKey = process.env.SECRET_KEY;
       if (!secretKey) {
@@ -288,9 +230,17 @@ export async function POST(req: NextApiRequest) {
         secretKey,
         { expiresIn: "24h" }
       );
-      return NextResponse.json(
+      const cookie = serialize('authToken',verificationToken,{
+        httpOnly:true,
+        secure:process.env.NODE_ENV === "production",
+        maxAge: rememberme ? 60 * 60 * 24 * 30 : 60 * 60 * 24,
+        path:"/",
+        sameSite:'strict'
+      })
+      const response =  NextResponse.json(
         {
           success: true,
+          message:"loggedin successfully",
           username: user.username,
           fullname: user.fullname,
           email: user.email,
@@ -299,14 +249,12 @@ export async function POST(req: NextApiRequest) {
         },
         { status: 200 }
       );
+      response.headers.set('Set-Cookie',cookie);
+      return response;
     }
 
-    return NextResponse.json(
-      {
-        err: "request is without intent please clear the intent",
-      },
-      { status: 400 }
-    );
+    throw new BadRequest("request is without intent please clear the intent")
+
   } catch (error: Error | any) {
 
     let errmsg = null;
@@ -325,8 +273,10 @@ export async function POST(req: NextApiRequest) {
     return NextResponse.json(
       {
         err: errmsg || error.message || "something went wrong while creating account.",
+        success:false,
+        statusCode: error.statusCode || 500
       },
-      { status: 500 }
+      { status: error.statusCode || 500 }
     );
   }
 }
