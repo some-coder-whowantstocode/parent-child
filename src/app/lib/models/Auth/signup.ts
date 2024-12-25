@@ -10,5 +10,6 @@ export interface reqbody {
     verify?:boolean,
     token?:string,
     identifier?:string,
-    rememberme?:boolean
+    rememberme?:boolean,
+    retrieve?:boolean
 }

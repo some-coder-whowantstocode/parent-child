@@ -1,13 +1,15 @@
 import { configureStore } from '@reduxjs/toolkit'
 import popupReducer from './lib/slices/popupSlice'
 import {enableMapSet} from 'immer';
+import authReducer from './lib/slices/authSlice';
 
 enableMapSet()
 
 export const makeStore = () => {
   return configureStore({
     reducer: {
-        popup:popupReducer
+        popup:popupReducer,
+        auth:authReducer
     }
   })
 }

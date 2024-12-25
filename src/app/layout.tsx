@@ -4,6 +4,7 @@ import "./globals.css";
 import StoreProvider from "./storeProvider";
 import Layout from "./popup/layout";
 import { WorkerProvider } from "./lib/contexts/workerContext";
+import NavLayout from './Navbar/layout'
 
 export const metadata: Metadata = {
   title: "parent-child",
@@ -21,7 +22,9 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <Layout>
+          <NavLayout>
             {children}
+          </NavLayout>
         </Layout>
       </body>
     </html>

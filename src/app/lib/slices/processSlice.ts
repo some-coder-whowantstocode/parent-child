@@ -18,5 +18,5 @@ const processSlice = createSlice({
 })
 
 export const {} = processSlice.actions;
-export const usePopup = (state:RootState) =>state.popup as processState
+export const usePopup = (state:RootState) =>state.proess as processState
 export default processSlice.reducer;

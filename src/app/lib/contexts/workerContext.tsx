@@ -2,6 +2,7 @@
 import React, { createContext, ReactNode, useContext, useRef } from "react";
 import { useDispatch } from "react-redux";
 import { setError, setMessage } from "../slices/popupSlice";
+import { login } from "../slices/authSlice";
 
 
 interface UserContextType {
@@ -54,12 +55,12 @@ const WorkerProvider:React.FC<MyComponentProps> = ({children})=>{
                     if(!data.success){
                       dispatch(setError(data.err))
                     }else{
-                        console.log(data)
-                      dispatch(setMessage(data.message))
+                        dispatch(setMessage(data.message))
+                        if(data.username && data.email && data.fullname && data.type) dispatch(login(data));
                     }
                   }
                 webworker.onerror = function(err){
-                    dispatch(setError("worker failed to initiated"))
+                    dispatch(setError("worker failed to initiated"));
                     console.log(err)
                 }
             }

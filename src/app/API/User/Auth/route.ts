@@ -10,6 +10,7 @@ import { User } from "@/app/lib/models/mongoose_models/user";
 import handleEmailVerification from "@/app/lib/emailverification";
 import { BadRequest, Unauthorized } from "../../responses/errors";
 import { serialize } from "cookie";
+import { verifyToken } from "@/app/lib/middleware/verifyToken";
 
 interface USER {
   isverified: boolean;
@@ -251,6 +252,23 @@ export async function POST(req: NextApiRequest) {
       );
       response.headers.set('Set-Cookie',cookie);
       return response;
+    }
+
+    if (data.retrieve){
+        const token = req.cookies._parsed.get('authToken').value;
+        if(!token){
+          throw new BadRequest("no token was found");
+        }
+        const decoded = await verifyToken(token);
+        const user = await User.findOne({username:decoded?.username}).select("isdeleted fullname email")
+
+        return NextResponse.json({
+          success: true,
+          username:decoded?.username,
+          fullname:user.fullname,
+          email:user.email,
+          type:decoded?.type
+        },{status:200})
     }
 
     throw new BadRequest("request is without intent please clear the intent")

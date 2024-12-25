@@ -1,0 +1,79 @@
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100dvw;
+  height: 7vh;
+  min-height: 4rem;
+  background-color: rgb(224, 224, 224);
+  z-index: 100000;
+  display: flex;
+  justify-content: space-between;
+  user-select: none;
+  -webkit-user-select: none;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  transition: all 0.2s;
+}
+.left,
+.middle,
+.right {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.left {
+  font-size: clamp(3vw, 2rem, 3vh);
+  font-weight: 800;
+  text-shadow: 1px 2px 2px rgb(58, 58, 58);
+  cursor: pointer;
+}
+.middle {
+  justify-content: space-evenly;
+  color: black;
+  z-index: 2000;
+}
+.middle > p {
+  margin: 0 1vw;
+  padding: 0.2rem 0.5rem;
+  cursor: pointer;
+}
+.follower {
+  border-radius: 0.5rem;
+  position: fixed;
+  left: 0;
+  right: 0;
+  transition: all 0.2s;
+}
+.right {
+  margin-right: 2rem;
+}
+.right> p{
+  cursor: pointer;
+}
+.logo{
+  cursor: pointer;
+  margin-right: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+.jiggle{
+    animation: jiggleRight 0.3s linear ease-in-out;
+}
+@keyframes jiggleRight {
+    0%{
+      transform: translateX(0);
+    }
+    25% {
+      transform: translateX(-10px);
+    }
+    75% {
+      transform: translateX(10px);
+    }
+    100%{
+      transform: translateX(0);
+
+    }
+}
