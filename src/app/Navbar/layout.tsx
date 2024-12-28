@@ -19,8 +19,13 @@ const Layout :React.FC<LayoutProps> = ({children})=>{
     const {useauthWorker} = useWorker();
 
     const LOCATIONS = [
-    {name:'problems', location:"problems"},
+    {name:'Samplepapers', location:"Samplepapers"},
     {name:'connections', location:"connections"},
+    ]
+
+    const SECUREDPAGES = [
+        'userprofile',
+        'samplepapers'
     ]
 
     useEffect(()=>{
@@ -76,7 +81,7 @@ const Layout :React.FC<LayoutProps> = ({children})=>{
     },[currentlocation])
 
     useEffect(()=>{
-        useauthWorker({retrieve:true});
+         useauthWorker({retrieve:true});
     },[])
 
     return (<>
@@ -115,7 +120,7 @@ const Layout :React.FC<LayoutProps> = ({children})=>{
                 <FaRegUserCircle
                  className={style.logo}
                  onClick={()=>{
-                     router.replace('/Auth')
+                     router.replace(`/userprofile`)
                     }}
                     />
             </div>

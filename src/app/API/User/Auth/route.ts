@@ -11,6 +11,7 @@ import handleEmailVerification from "@/app/lib/emailverification";
 import { BadRequest, Unauthorized } from "../../responses/errors";
 import { serialize } from "cookie";
 import { verifyToken } from "@/app/lib/middleware/verifyToken";
+import { errorHandler } from "@/app/lib/middleware/errorhandler";
 
 interface USER {
   isverified: boolean;
@@ -23,8 +24,7 @@ interface USER {
   type: string;
 }
 
-export async function POST(req: NextApiRequest) {
-  try {
+export const POST = errorHandler( async (req: NextApiRequest)=> {
     if (!req.body) {
       throw new BadRequest("body is required please provide a body");
     }
@@ -50,7 +50,6 @@ export async function POST(req: NextApiRequest) {
       );
     }
     const data: reqbody = JSON.parse(chunks);
-
     await dbconnect();
 
     if (data.create) {
@@ -256,12 +255,13 @@ export async function POST(req: NextApiRequest) {
 
     if (data.retrieve){
         const token = req.cookies._parsed.get('authToken').value;
+        
         if(!token){
           throw new BadRequest("no token was found");
         }
         const decoded = await verifyToken(token);
         const user = await User.findOne({username:decoded?.username}).select("isdeleted fullname email")
-
+        console.log(user)
         return NextResponse.json({
           success: true,
           username:decoded?.username,
@@ -273,28 +273,4 @@ export async function POST(req: NextApiRequest) {
 
     throw new BadRequest("request is without intent please clear the intent")
 
-  } catch (error: Error | any) {
-
-    let errmsg = null;
-
-    if (error.name === "MongoNetworkError") {
-      errmsg = "Network error: "+ error.message;
-    } else if (error.name === "MongoTimeoutError") {
-      errmsg = "Timeout error: " + error.message;
-    } else if (error.name === 'ValidationError') {
-      let verr : Error | any =Object.values(error.errors)[0]; 
-      errmsg = verr.message
-    } else if (error.code === 11000) {
-      errmsg = `${Object.keys(error.errorResponse.keyValue)[0]} already exists, please choose another.`
-    }
-
-    return NextResponse.json(
-      {
-        err: errmsg || error.message || "something went wrong while creating account.",
-        success:false,
-        statusCode: error.statusCode || 500
-      },
-      { status: error.statusCode || 500 }
-    );
-  }
-}
+})

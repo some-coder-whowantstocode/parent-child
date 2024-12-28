@@ -14,8 +14,8 @@ const questionSchema = new mongoose.Schema({
     questionText: { 
         type: String, 
         required: true,
-        max:[500,"Question length can not exceed 500"],
-        min:[10,"Question length must be atleast 50"]
+        maxLength:[5000,"Question length can not exceed 500"],
+        minLength:[10,"Question length must be atleast 50"]
     },
     questionType: { type: String, enum: [
         'multiple-choice', 
@@ -37,11 +37,10 @@ const questionSchema = new mongoose.Schema({
 },{_id:false});
 
 const answerSchema = new mongoose.Schema({
-    // questionId: { type: mongoose.Schema.Types.ObjectId, ref: 'Question', required: true },
+    questionId: { type: mongoose.Schema.Types.ObjectId, ref: 'Question', required: true },
     answer: { 
         type: mongoose.Schema.Types.Mixed, 
         required: true,
-        max:[500,"Answer length can not exceed 500"]
     },
     score:{
         type:Number,
@@ -58,10 +57,11 @@ const samplePaperSchema = new mongoose.Schema({
             type:questionSchema,
             validate:{
                 validator: function(arr:[]){
-                    return arr.length <= 10 && arr.length >= 1;
+                    return arr.length <= 1000 && arr.length >= 1;
                 },
                 message:"There must be at least one question and not more than ten questions."
-            }
+            },
+            required:[true,'atleast one question is required and questions must be a array']
         }
     ],
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
@@ -72,11 +72,17 @@ const samplePaperSchema = new mongoose.Schema({
         default:false,
         _id:false
     },
+    passingMark:{
+        type:Number,
+        required:[true,'passing marks are required'],
+        max:10000,
+        min:0
+    },
     totalScore:{
         type:Number,
         required:[true,"score is required for the sample paper"],
-        max:100,
-        min:10
+        max:10000,
+        min:0
     }
 });
 
@@ -87,7 +93,7 @@ const childActivitySchema = new mongoose.Schema({
         type:answerSchema,
         validate:{
             validator: function(arr:[]){
-                return arr.length <= 10 && arr.length >= 1;
+                return arr.length <= 1000 && arr.length >= 1;
             },
             message:"There must be at least one answer and not more than ten answers."
         }
@@ -97,7 +103,7 @@ const childActivitySchema = new mongoose.Schema({
     totalScore:{
         type:Number,
         default:0,
-        max:100,
+        max:10000,
         min:0
     },
     status:{

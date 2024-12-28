@@ -38,18 +38,21 @@ const userSchema = new mongoose.Schema({
     Connections:[{
         id:{
             type: Schema.Types.ObjectId,
+            ref:'User'
         },
         _id:false
     }],
     connectionRequests: [{
         id:{
-            type: Schema.Types.ObjectId
+            type: Schema.Types.ObjectId,
+            ref:'User'
         },
         _id:false
     }],
     connectionRequested: [{
         id:{
-            type: Schema.Types.ObjectId
+            type: Schema.Types.ObjectId,
+            ref:'User'
         },
         _id:false
     }],

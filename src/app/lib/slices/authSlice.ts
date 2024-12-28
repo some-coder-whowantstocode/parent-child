@@ -1,7 +1,20 @@
 import { RootState } from "@/app/store";
 import { createSlice } from "@reduxjs/toolkit";
 
-type UserRole = 'guardian' | 'child'
+type UserRole = 'guardian' | 'child';
+interface paper {
+    title:string,
+    date:Date,
+    score:number,
+    creater:string,
+}
+
+interface Resp {
+    title:string,
+    date:Date,
+    score:number,
+    responses:number
+}
 
 export interface value{
     username:string | null,
@@ -9,7 +22,9 @@ export interface value{
     email:string | null,
     type:UserRole | null,
     loggedIn:boolean,
-    rememberme:boolean
+    rememberme:boolean,
+    samplepapers:paper[],
+    responses:Resp[]
 }
 
 const initialState : value ={
@@ -18,7 +33,9 @@ const initialState : value ={
     email:null,
     type:null,
     loggedIn:false,
-    rememberme:true
+    rememberme:true,
+    samplepapers:[],
+    responses:[]
 }
 
 const authSlice = createSlice({
@@ -39,6 +56,8 @@ const authSlice = createSlice({
             state.email = null;
             state.type = null;
             state.loggedIn = false;
+            state.samplepapers =[];
+            state.responses = [];
         },
         memory(state){
             state.rememberme != state.rememberme;

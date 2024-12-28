@@ -6,15 +6,14 @@ import { Samplepaper } from "@/app/lib/models/mongoose_models/problem";
 import { User } from "@/app/lib/models/mongoose_models/user";
 import dbconnect from "@/app/lib/db";
 import { verifyToken } from "@/app/lib/middleware/verifyToken";
+import { errorHandler } from "@/app/lib/middleware/errorhandler";
+import { BadRequest, Unauthorized } from "../../responses/errors";
 
-export async function POST(req:NextApiRequest){
-    try {
+export const POST = errorHandler(async(req:NextApiRequest)=>{
 
         const token = req.cookies._parsed.get('authToken').value;
         if(!token) {
-            return NextResponse.json({
-                err:"Unauthorized access"
-            },{status:401})
+            throw new Unauthorized("Unauthorized access");
         }
         
         const secretKey = process.env.SECRET_KEY;
@@ -24,39 +23,25 @@ export async function POST(req:NextApiRequest){
         const decoded = await verifyToken(token);
         
         const data = await ReadStream(req.body);
-        const {title, questions, correctAnswer} = data;
-            
-        if(!title || !questions){
-            return NextResponse.json({
-                err:"title and questions are required"
-            },{status:400})
-        }
-
+        const {title, questions, correctAnswer, passingMark} = data;
+        
         await dbconnect();
         const user = await User.findOne({username:decoded?.username}).select("role isverified isdeleted");
 
         if(user.role !== "guardian"){
-            return NextResponse.json({
-                err:"you do not have the authority for this action"
-            },{status:400})
+            throw new BadRequest("you do not have the authority for this action")
         }
 
         if(!user ){
-            return NextResponse.json({
-                err:"No user with such user exists "
-            },{status:400})
+            throw new BadRequest("No user with such user exists ")
         }
 
         if(!user.isverified ){
-            return NextResponse.json({
-                err:"You are not verified"
-            },{status:400})
+            throw new BadRequest("You are not verified")
         }
 
         if(user.isdeleted ){
-            return NextResponse.json({
-                err:"What are you trying to acheive here rise from dead?"
-            },{status:400})
+            throw new BadRequest("What are you trying to acheive here rise from dead?")
         }
         
         let totalScore = 0;
@@ -68,18 +53,15 @@ export async function POST(req:NextApiRequest){
             questions,
             totalScore,
             createdBy:user._id,
-            correctAnswer
+            correctAnswer,
+            passingMark
         })
 
         const paper = await samplepaper.save();
         await User.updateOne({username:decoded?.username},{$push:{samplePapers:paper._id}})
 
         return NextResponse.json({
-            message:"sample paper created successfully"
+            message:"sample paper created successfully",
+            success:true
         },{status:201})
-    } catch (error) {
-        return NextResponse.json({
-            err:error.message ? error.message :"something went wrong "
-        },{status:500})
-    }
-}
+})
