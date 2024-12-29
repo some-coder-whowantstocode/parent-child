@@ -4,6 +4,7 @@ import { useAuth } from "../lib/slices/authSlice";
 import { useSelector } from "react-redux";
 import style from './style.module.css';
 import { v4 } from "uuid";
+import { useRouter } from "next/navigation";
 
 interface papers {
     title:string,
@@ -18,6 +19,7 @@ const page =()=>{
     const {loggedIn} = useSelector(useAuth);
     const [samplepapers, setpapers] = useState<papers[]>([]);
     const [loading, setloading] = useState(false);
+    const router = useRouter();
 
     const getSamplePapersForGuardian =async()=>{
         try {
@@ -60,6 +62,7 @@ const page =()=>{
         >
             <button
             className={style.create}
+            onClick={()=>router.push('/Samplepapers/create')}
             >create</button>
         </div>
         <div

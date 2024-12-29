@@ -1,10 +1,10 @@
 # Details
 
-Date : 2024-12-27 00:28:08
+Date : 2024-12-29 01:42:19
 
 Directory /home/somecoder/Documents/web/web project/student-teacher/client
 
-Total : 69 files,  5633 codes, 147 comments, 558 blanks, all 6338 lines
+Total : 74 files,  6174 codes, 151 comments, 606 blanks, all 6931 lines
 
 [Summary](results.md) / Details / [Diff Summary](diff.md) / [Diff Details](diff-details.md)
 
@@ -20,11 +20,11 @@ Total : 69 files,  5633 codes, 147 comments, 558 blanks, all 6338 lines
 | [public/workers/worker.js](/public/workers/worker.js) | JavaScript | 28 | 0 | 3 | 31 |
 | [run-curl.bat](/run-curl.bat) | Batch | 5 | 0 | 1 | 6 |
 | [src/app/API/Sample_papers/CheckPaper/route.ts](/src/app/API/Sample_papers/CheckPaper/route.ts) | TypeScript | 49 | 0 | 18 | 67 |
-| [src/app/API/Sample_papers/Create/route.ts](/src/app/API/Sample_papers/Create/route.ts) | TypeScript | 69 | 0 | 16 | 85 |
+| [src/app/API/Sample_papers/Create/route.ts](/src/app/API/Sample_papers/Create/route.ts) | TypeScript | 52 | 0 | 15 | 67 |
 | [src/app/API/Sample_papers/DeletebyId/route.ts](/src/app/API/Sample_papers/DeletebyId/route.ts) | TypeScript | 43 | 30 | 11 | 84 |
 | [src/app/API/Sample_papers/GetActivitybyId/route.ts](/src/app/API/Sample_papers/GetActivitybyId/route.ts) | TypeScript | 17 | 0 | 4 | 21 |
 | [src/app/API/Sample_papers/Getallactivities/route.ts](/src/app/API/Sample_papers/Getallactivities/route.ts) | TypeScript | 26 | 1 | 7 | 34 |
-| [src/app/API/Sample_papers/Getallsamplepapers/route.ts](/src/app/API/Sample_papers/Getallsamplepapers/route.ts) | TypeScript | 48 | 4 | 10 | 62 |
+| [src/app/API/Sample_papers/Getallsamplepapers/route.ts](/src/app/API/Sample_papers/Getallsamplepapers/route.ts) | TypeScript | 58 | 0 | 12 | 70 |
 | [src/app/API/Sample_papers/GetbyIdsamplepaper/route.ts](/src/app/API/Sample_papers/GetbyIdsamplepaper/route.ts) | TypeScript | 22 | 0 | 6 | 28 |
 | [src/app/API/Sample_papers/Solve/route.ts](/src/app/API/Sample_papers/Solve/route.ts) | TypeScript | 111 | 1 | 19 | 131 |
 | [src/app/API/User/Auth/route.ts](/src/app/API/User/Auth/route.ts) | TypeScript | 248 | 0 | 29 | 277 |
@@ -43,16 +43,21 @@ Total : 69 files,  5633 codes, 147 comments, 558 blanks, all 6338 lines
 | [src/app/API/responses/errors/index.ts](/src/app/API/responses/errors/index.ts) | TypeScript | 8 | 0 | 1 | 9 |
 | [src/app/Auth/page.tsx](/src/app/Auth/page.tsx) | TypeScript JSX | 144 | 6 | 22 | 172 |
 | [src/app/Auth/style.module.css](/src/app/Auth/style.module.css) | CSS | 246 | 3 | 5 | 254 |
-| [src/app/Navbar/layout.tsx](/src/app/Navbar/layout.tsx) | TypeScript JSX | 122 | 0 | 20 | 142 |
+| [src/app/Navbar/layout.tsx](/src/app/Navbar/layout.tsx) | TypeScript JSX | 126 | 0 | 21 | 147 |
 | [src/app/Navbar/style.module.css](/src/app/Navbar/style.module.css) | CSS | 80 | 0 | 2 | 82 |
-| [src/app/Sample_papers/[id]/page.tsx](/src/app/Sample_papers/%5Bid%5D/page.tsx) | TypeScript JSX | 0 | 0 | 1 | 1 |
-| [src/app/Sample_papers/page.tsx](/src/app/Sample_papers/page.tsx) | TypeScript JSX | 0 | 0 | 1 | 1 |
+| [src/app/Samplepapers/[id]/page.tsx](/src/app/Samplepapers/%5Bid%5D/page.tsx) | TypeScript JSX | 0 | 0 | 1 | 1 |
+| [src/app/Samplepapers/[id]/style.module.css](/src/app/Samplepapers/%5Bid%5D/style.module.css) | CSS | 0 | 0 | 1 | 1 |
+| [src/app/Samplepapers/create/page.tsx](/src/app/Samplepapers/create/page.tsx) | TypeScript JSX | 152 | 1 | 22 | 175 |
+| [src/app/Samplepapers/create/style.module.css](/src/app/Samplepapers/create/style.module.css) | CSS | 139 | 1 | 1 | 141 |
+| [src/app/Samplepapers/page.tsx](/src/app/Samplepapers/page.tsx) | TypeScript JSX | 101 | 2 | 9 | 112 |
+| [src/app/Samplepapers/style.module.css](/src/app/Samplepapers/style.module.css) | CSS | 86 | 0 | 2 | 88 |
 | [src/app/connections/[username]/page.tsx](/src/app/connections/%5Busername%5D/page.tsx) | TypeScript JSX | 0 | 0 | 1 | 1 |
 | [src/app/connections/[username]/style.module.tsx](/src/app/connections/%5Busername%5D/style.module.tsx) | TypeScript JSX | 0 | 0 | 1 | 1 |
 | [src/app/connections/page.tsx](/src/app/connections/page.tsx) | TypeScript JSX | 3 | 0 | 2 | 5 |
 | [src/app/connections/style.module.css](/src/app/connections/style.module.css) | CSS | 0 | 0 | 1 | 1 |
-| [src/app/globals.css](/src/app/globals.css) | CSS | 10 | 0 | 0 | 10 |
-| [src/app/layout.tsx](/src/app/layout.tsx) | TypeScript JSX | 31 | 0 | 4 | 35 |
+| [src/app/globals.css](/src/app/globals.css) | CSS | 19 | 0 | 1 | 20 |
+| [src/app/layout.tsx](/src/app/layout.tsx) | TypeScript JSX | 34 | 0 | 4 | 38 |
+| [src/app/lib/contexts/samplepaperContext.tsx](/src/app/lib/contexts/samplepaperContext.tsx) | TypeScript JSX | 47 | 5 | 11 | 63 |
 | [src/app/lib/contexts/workerContext.tsx](/src/app/lib/contexts/workerContext.tsx) | TypeScript JSX | 73 | 0 | 16 | 89 |
 | [src/app/lib/db.ts](/src/app/lib/db.ts) | TypeScript | 34 | 0 | 6 | 40 |
 | [src/app/lib/emailverification.ts](/src/app/lib/emailverification.ts) | TypeScript | 29 | 0 | 7 | 36 |
@@ -61,7 +66,7 @@ Total : 69 files,  5633 codes, 147 comments, 558 blanks, all 6338 lines
 | [src/app/lib/models/Auth/signup.ts](/src/app/lib/models/Auth/signup.ts) | TypeScript | 15 | 0 | 1 | 16 |
 | [src/app/lib/models/db.d.ts](/src/app/lib/models/db.d.ts) | TypeScript | 7 | 0 | 2 | 9 |
 | [src/app/lib/models/mongoose_models/message.ts](/src/app/lib/models/mongoose_models/message.ts) | TypeScript | 17 | 0 | 4 | 21 |
-| [src/app/lib/models/mongoose_models/problem.ts](/src/app/lib/models/mongoose_models/problem.ts) | TypeScript | 105 | 2 | 8 | 115 |
+| [src/app/lib/models/mongoose_models/problem.ts](/src/app/lib/models/mongoose_models/problem.ts) | TypeScript | 111 | 1 | 8 | 120 |
 | [src/app/lib/models/mongoose_models/user.ts](/src/app/lib/models/mongoose_models/user.ts) | TypeScript | 93 | 0 | 7 | 100 |
 | [src/app/lib/slices/authSlice.ts](/src/app/lib/slices/authSlice.ts) | TypeScript | 64 | 0 | 6 | 70 |
 | [src/app/lib/slices/popupSlice.ts](/src/app/lib/slices/popupSlice.ts) | TypeScript | 77 | 0 | 5 | 82 |
@@ -73,7 +78,7 @@ Total : 69 files,  5633 codes, 147 comments, 558 blanks, all 6338 lines
 | [src/app/popup/style.module.css](/src/app/popup/style.module.css) | CSS | 114 | 0 | 3 | 117 |
 | [src/app/store.ts](/src/app/store.ts) | TypeScript | 16 | 0 | 3 | 19 |
 | [src/app/storeProvider.tsx](/src/app/storeProvider.tsx) | TypeScript JSX | 15 | 1 | 2 | 18 |
-| [src/app/userprofile/page.tsx](/src/app/userprofile/page.tsx) | TypeScript JSX | 109 | 1 | 12 | 122 |
+| [src/app/userprofile/page.tsx](/src/app/userprofile/page.tsx) | TypeScript JSX | 110 | 1 | 12 | 123 |
 | [src/app/userprofile/style.module.css](/src/app/userprofile/style.module.css) | CSS | 103 | 1 | 3 | 107 |
 | [src/app/verify/[token]/page.tsx](/src/app/verify/%5Btoken%5D/page.tsx) | TypeScript JSX | 39 | 0 | 9 | 48 |
 | [src/app/verify/[token]/style.module.css](/src/app/verify/%5Btoken%5D/style.module.css) | CSS | 8 | 0 | 0 | 8 |

@@ -2,12 +2,11 @@ import mongoose from "mongoose";
 
 const optionSchema = new mongoose.Schema({
     text: {type:String, required:true},
-    isCorrect:{type:Boolean, default:false}
 },{_id:false})
 
 const matchPairSchema = new mongoose.Schema({
-    text:{type:String, required:true},
-    // right:{type:String, required:true}
+    left:{type:String, required:true},
+    right:{type:String, required:true}
 },{_id:false})
 
 const questionSchema = new mongoose.Schema({
@@ -33,7 +32,7 @@ const questionSchema = new mongoose.Schema({
     chronologicalOrder:[{type:Number}],
     mapDetails:{type:String},
     caseText:{type:String},
-    score:{type:Number,required:true,max:10,min:1}
+    score:{type:Number,required:true,max:100,min:1}
 },{_id:false});
 
 const answerSchema = new mongoose.Schema({
@@ -72,10 +71,10 @@ const samplePaperSchema = new mongoose.Schema({
         default:false,
         _id:false
     },
-    passingMark:{
+    passingPercent:{
         type:Number,
-        required:[true,'passing marks are required'],
-        max:10000,
+        required:[true,'passing percentage is required'],
+        max:100,
         min:0
     },
     totalScore:{

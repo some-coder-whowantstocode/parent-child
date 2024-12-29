@@ -5,6 +5,7 @@ import StoreProvider from "./storeProvider";
 import Layout from "./popup/layout";
 import { WorkerProvider } from "./lib/contexts/workerContext";
 import NavLayout from './Navbar/layout'
+import { SampleProvider } from "./lib/contexts/samplepaperContext";
 
 export const metadata: Metadata = {
   title: "parent-child",
@@ -19,6 +20,7 @@ export default function RootLayout({
   return (
     <StoreProvider>
       <WorkerProvider>
+        <SampleProvider>
     <html lang="en">
       <body>
         <Layout>
@@ -28,6 +30,7 @@ export default function RootLayout({
         </Layout>
       </body>
     </html>
+        </SampleProvider>
       </WorkerProvider>
     </StoreProvider>
   );
