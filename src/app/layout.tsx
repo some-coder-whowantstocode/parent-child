@@ -6,6 +6,7 @@ import Layout from "./popup/layout";
 import { WorkerProvider } from "./lib/contexts/workerContext";
 import NavLayout from './Navbar/layout'
 import { SampleProvider } from "./lib/contexts/samplepaperContext";
+import { ConnectionProvider } from "./lib/contexts/connectionRequest";
 
 export const metadata: Metadata = {
   title: "parent-child",
@@ -21,6 +22,7 @@ export default function RootLayout({
     <StoreProvider>
       <WorkerProvider>
         <SampleProvider>
+          <ConnectionProvider>
     <html lang="en">
       <body>
         <Layout>
@@ -30,6 +32,7 @@ export default function RootLayout({
         </Layout>
       </body>
     </html>
+          </ConnectionProvider>
         </SampleProvider>
       </WorkerProvider>
     </StoreProvider>

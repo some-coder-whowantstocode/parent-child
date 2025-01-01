@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 
 import style from './style.module.css'
 import { useWorker } from '../lib/contexts/workerContext';
+import { errorhandler } from '../lib/errorhandler';
 
 
 const page = () => {
@@ -41,7 +42,7 @@ const page = () => {
 
       }
         
-      useauthWorker(objectdata);
+      errorhandler(useauthWorker,objectdata);
       
     } catch (error) {
       console.log(error)

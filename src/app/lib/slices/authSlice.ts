@@ -1,6 +1,7 @@
 import { RootState } from "@/app/store";
 import { createSlice } from "@reduxjs/toolkit";
 
+
 type UserRole = 'guardian' | 'child';
 interface paper {
     title:string,
@@ -49,6 +50,7 @@ const authSlice = createSlice({
             state.email = email;
             state.type = type;
             state.loggedIn = true;
+            
         },
         logout(state){
             state.username = null;

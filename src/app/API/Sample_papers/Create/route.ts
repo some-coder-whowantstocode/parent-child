@@ -54,7 +54,7 @@ export const POST = errorHandler(async(req:NextApiRequest)=>{
             totalScore,
             createdBy:user._id,
             correctAnswer,
-            passingMark
+            passingPercent:passingMark
         })
 
         const paper = await samplepaper.save();

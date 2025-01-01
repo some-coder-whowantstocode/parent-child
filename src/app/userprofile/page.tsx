@@ -1,11 +1,14 @@
 'use client'
 
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import style from './style.module.css';
-import { useAuth } from '@/app/lib/slices/authSlice';
+import { logout, useAuth } from '@/app/lib/slices/authSlice';
 import { FormEvent, useEffect, useRef, useState } from 'react';
 import { FaRegUserCircle } from "react-icons/fa";
 import { v4 } from 'uuid';
+import { del } from '../API/User/Logout/route';
+import { useRouter } from 'next/navigation';
+import { setMessage } from '../lib/slices/popupSlice';
 
 const page =()=>{
 
@@ -15,6 +18,9 @@ const page =()=>{
     const [un, setun] = useState("");
     const [em, setem] = useState("");
     const [active, setactive] = useState(false);
+    const router = useRouter();
+
+    const dispatch = useDispatch();
 
     const handleUpdate =(e:FormEvent<HTMLFormElement>)=>{
         try {
@@ -89,7 +95,21 @@ const page =()=>{
                 :
                 <button className={style.disabled}>update</button>
                 }
-                <div className={style.title}>Analytics</div>
+                <button
+                className={style.logout}
+                onClick={async()=>{
+                    try {
+                        del();
+                        dispatch(logout());   
+                        dispatch(setMessage("successfully logged out"))
+                        router.replace('/Auth');
+                    } catch (error) {
+                        console.log(error)
+                    }
+                   
+                }}
+                >Logout</button>
+                {/* <div className={style.title}>Analytics</div>
 
                 <div
                 className={style.AnalyticSkeleton}
@@ -111,7 +131,7 @@ const page =()=>{
                         ))
                     }
                 </div>
-                <div className={style.title}>solved papers</div>
+                <div className={style.title}>solved papers</div> */}
 
             </div>
          )

@@ -6,9 +6,9 @@ import { User } from "@/app/lib/models/mongoose_models/user";
 import mongoose from "mongoose";
 import { verifyToken } from "@/app/lib/middleware/verifyToken";
 import dbconnect from "@/app/lib/db";
+import { errorHandler } from "@/app/lib/middleware/errorhandler";
 
-export async function POST(req: NextApiRequest) {
-    try {
+export const POST = errorHandler(async(req: NextApiRequest)=> {
         const token = req.cookies._parsed.get("authToken").value;
         if (!token) {
             return NextResponse.json(
@@ -81,9 +81,9 @@ export async function POST(req: NextApiRequest) {
         await dbconnect();
 
         let updated;
-        query.connectionRequested = { $nin: [{ id: decoded.id }] };
-        query.connectionRequests = { $nin: [{ id: decoded.id }] };
-        query.Connections = { $nin: [{ id: decoded.id }] };
+        query.connectionRequested = { $nin: [ decoded.id ] };
+        query.connectionRequests = { $nin: [decoded.id ] };
+        query.Connections = { $nin: [decoded.id ] };
         const user = await User.findOne(query).select("_id");
         if(!user){
             return NextResponse.json(
@@ -95,7 +95,7 @@ export async function POST(req: NextApiRequest) {
         }
         updated = await User.updateOne(query, {
             $addToSet: {
-                connectionRequested: { id: decoded.id },
+                connectionRequested: decoded.id ,
             },
         });
 
@@ -110,7 +110,7 @@ export async function POST(req: NextApiRequest) {
         
             await User.updateOne(
                 { email: decoded.email },
-                { $push: { connectionRequests: { id: user._id } } }
+                { $push: { connectionRequests:  user._id  } }
             );
 
         return NextResponse.json(
@@ -120,13 +120,6 @@ export async function POST(req: NextApiRequest) {
             { status: 200 }
         );
 
-        
-    } catch (error) {
-        return NextResponse.json(
-            {
-                err: error.message || "Something went wrong",
-            },
-            { status: 500 }
-        );
-    }
-}
+   
+})
+

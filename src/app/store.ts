@@ -1,19 +1,20 @@
-import { configureStore } from '@reduxjs/toolkit'
-import popupReducer from './lib/slices/popupSlice'
-import {enableMapSet} from 'immer';
+// store.js or store.ts
+import { configureStore } from '@reduxjs/toolkit';
+import popupReducer from './lib/slices/popupSlice';
 import authReducer from './lib/slices/authSlice';
+import { enableMapSet } from 'immer';
 
-enableMapSet()
+enableMapSet();
 
-export const makeStore = () => {
-  return configureStore({
-    reducer: {
-        popup:popupReducer,
-        auth:authReducer
-    }
-  })
-}
+const store = configureStore({
+  reducer: {
+    popup: popupReducer,
+    auth: authReducer,
+  },
+});
 
-export type AppStore = ReturnType<typeof makeStore>
-export type RootState = ReturnType<AppStore['getState']>
-export type AppDispatch = AppStore['dispatch']
+export default store; // Export the store instance
+
+export type AppStore = typeof store;
+export type RootState = ReturnType<AppStore['getState']>;
+export type AppDispatch = AppStore['dispatch'];

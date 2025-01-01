@@ -76,9 +76,9 @@ export async function POST(req: NextApiRequest) {
             );
         }
 
-        await User.updateOne({_id:identifier},{$addToSet:{Connections:{id:decoded.id}}});
+        await User.updateOne({_id:identifier},{$addToSet:{Connections:decoded.id}});
 
-        await User.updateOne({_id:decoded.id},{$pull:{connectionRequests:{id:identifier}}, $addToSet:{Connections:{id:identifier}}});  
+        await User.updateOne({_id:decoded.id},{$pull:{connectionRequests:identifier}, $addToSet:{Connections:{id:identifier}}});  
 
         return NextResponse.json(
             {

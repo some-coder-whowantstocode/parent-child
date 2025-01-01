@@ -63,12 +63,12 @@ export async function POST(req: NextApiRequest) {
 
         await dbconnect();
 
-        const user = await User.updateOne({_id:identifier},{$pull:{connectionRequested:{id:decoded.id}}});
+        const user = await User.updateOne({_id:identifier},{$pull:{connectionRequested:decoded.id}});
         if(!user ||user.modifiedCount == 0){
             return NextResponse.json({err:"Invalid request"},{status:400});
         }
 
-        const requestor = await User.updateOne({_id:decoded.id},{$pull:{connectionRequests:{id:identifier}}});
+        const requestor = await User.updateOne({_id:decoded.id},{$pull:{connectionRequests:identifier}});
 
         return NextResponse.json({message:"connection request canceled"},{status:200})
 

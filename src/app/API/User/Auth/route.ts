@@ -244,7 +244,7 @@ export const POST = errorHandler( async (req: NextApiRequest)=> {
           username: user.username,
           fullname: user.fullname,
           email: user.email,
-          type: user.type,
+          type: user.role,
           token: verificationToken,
         },
         { status: 200 }

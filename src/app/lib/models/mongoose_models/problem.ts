@@ -51,18 +51,16 @@ const answerSchema = new mongoose.Schema({
 
 const samplePaperSchema = new mongoose.Schema({
     title: { type: String, required: true },
-    questions: [
+    questions: 
         {   
-            type:questionSchema,
-            validate:{
-                validator: function(arr:[]){
-                    return arr.length <= 1000 && arr.length >= 1;
-                },
-                message:"There must be at least one question and not more than ten questions."
-            },
+            type:[questionSchema],
+            validate:[
+               questionval,
+                "There must be at least one question and not more than ten questions."
+            ],
             required:[true,'atleast one question is required and questions must be a array']
         }
-    ],
+    ,
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     createdAt: { type: Date, default: Date.now },
     responses:[{type:mongoose.Schema.Types.ObjectId, ref:'Activites', default:[]}],
@@ -84,6 +82,10 @@ const samplePaperSchema = new mongoose.Schema({
         min:0
     }
 });
+
+function questionval (val:[]){
+    return val.length > 1 && val.length < 1000;
+}
 
 const childActivitySchema = new mongoose.Schema({
     child: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },

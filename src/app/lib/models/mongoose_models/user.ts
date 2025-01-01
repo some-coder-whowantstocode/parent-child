@@ -36,25 +36,19 @@ const userSchema = new mongoose.Schema({
         immutable: true
     },
     Connections:[{
-        id:{
             type: Schema.Types.ObjectId,
-            ref:'User'
-        },
-        _id:false
+            ref:'User',
+            _id:false
     }],
     connectionRequests: [{
-        id:{
             type: Schema.Types.ObjectId,
-            ref:'User'
-        },
-        _id:false
+            ref:'User',
+            _id:false
     }],
     connectionRequested: [{
-        id:{
             type: Schema.Types.ObjectId,
-            ref:'User'
-        },
-        _id:false
+            ref:'User',
+            _id:false
     }],
     isverified: {
         type: Boolean,

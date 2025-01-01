@@ -1,13 +1,13 @@
-import { NextApiRequest } from "next"
+import { NextApiRequest, NextApiResponse } from "next"
 import { NextResponse } from "next/server";
 
 export function errorHandler(handler:Function){
-    return async function(req:NextApiRequest){
+    return async function(req:NextApiRequest, resp:NextResponse){
         try {
-            const res = await handler(req); 
+            const res = await handler(req, resp); 
             return res
         } catch (error : Error | any) {
-
+          console.log(error)
             let errmsg = null;
 
             if (error.name === "MongoNetworkError") {

@@ -1,10 +1,11 @@
 'use client'
 import { useEffect, useState } from "react";
 import { useAuth } from "../lib/slices/authSlice";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import style from './style.module.css';
 import { v4 } from "uuid";
 import { useRouter } from "next/navigation";
+import { setError, setMessage } from "../lib/slices/popupSlice";
 
 interface papers {
     title:string,
@@ -20,13 +21,19 @@ const page =()=>{
     const [samplepapers, setpapers] = useState<papers[]>([]);
     const [loading, setloading] = useState(false);
     const router = useRouter();
+    const dispatch = useDispatch();
 
     const getSamplePapersForGuardian =async()=>{
         try {
+            setloading(true);
             if(loggedIn){
                 const url = 'API/Sample_papers/Getallsamplepapers';
                 const data = await fetch(url);
                 const jsondata = await data.json();
+                if(!jsondata.success){
+                    dispatch(setError(jsondata.error))
+                    return;
+                }
                 let arr = jsondata.samplePapers as papers[];
                 arr = arr.map((data)=>{
                     let date = new Date(data.createdAt);
@@ -35,10 +42,14 @@ const page =()=>{
                     return data;
                 })
                 setpapers(arr)
+                dispatch(setMessage(jsondata.message || 'sample papers retrieved successfully'))
                 console.log(jsondata)
             }    
         } catch (error) {
             console.log(error);
+            dispatch(setError(error.message ? error.message : 'failed to retrieve samplepapers'))
+        }finally{
+            setloading(false);
         }
         
     }
@@ -92,7 +103,7 @@ const page =()=>{
             ))
         }
         {
-            // loading && 
+            loading && 
             <div
             className={style.paperSkeleton}
             >

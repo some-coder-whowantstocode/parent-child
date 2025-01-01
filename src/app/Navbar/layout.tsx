@@ -4,10 +4,11 @@ import { LayoutProps } from "../../../.next/types/app/layout";
 import style from './style.module.css'
 import { v4 } from "uuid";
 import { useRouter } from "next/navigation";
-import { useAuth, value } from "../lib/slices/authSlice";
+import { logout, useAuth, value } from "../lib/slices/authSlice";
 import { FaRegUserCircle } from "react-icons/fa";
 import { useWorker } from "../lib/contexts/workerContext";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { errorhandler } from "../lib/errorhandler";
 
 const Layout :React.FC<LayoutProps> = ({children})=>{
 
@@ -15,12 +16,13 @@ const Layout :React.FC<LayoutProps> = ({children})=>{
     const followerRef = useRef(null);
     const router = useRouter();
     const [currentlocation, setlocation] = useState("problems");
-    const {loggedIn} = useSelector(useAuth);
+    const {loggedIn, type} = useSelector(useAuth);
     const {useauthWorker} = useWorker();
+    const dispatch = useDispatch();
 
     const LOCATIONS = [
-    {name:'Samplepapers', location:"Samplepapers"},
-    {name:'connections', location:"connections"},
+    {name:'Samplepapers', location:"Samplepapers", t:"guardian"},
+    {name:'connections', location:"connections", t:'all'},
     ]
 
     const SECUREDPAGES = [
@@ -81,8 +83,11 @@ const Layout :React.FC<LayoutProps> = ({children})=>{
     },[currentlocation])
 
     useEffect(()=>{
-         useauthWorker({retrieve:true});
+        console.log(useauthWorker)
+         errorhandler(useauthWorker,{retrieve:true});
     },[])
+
+ 
 
     return (<>
     <nav
@@ -91,7 +96,7 @@ const Layout :React.FC<LayoutProps> = ({children})=>{
         <div 
         className={style.left}
         onClick={()=>{
-            router.replace('/')
+            router.push('/')
         }}
         >
             connect
@@ -101,14 +106,20 @@ const Layout :React.FC<LayoutProps> = ({children})=>{
         ref={barRef}
         >
             {
-                loggedIn && LOCATIONS.map(({name, location})=>(
-                    <p
+                loggedIn && LOCATIONS.map(({name, location, t})=>(
+                    <div
+                    key={v4()}
+                    
+                    >
+                   { (t === 'all' || t === type)&&  <p
                     onClick={()=>{
                         setlocation(location);
-                        router.replace(location)
+                        
+                        router.replace('/'+location)
                     }} 
                     
-                    key={v4()}>{name}</p>
+                    >{name}</p>}
+                    </div>
                 ))
             }
         </div>
@@ -120,7 +131,7 @@ const Layout :React.FC<LayoutProps> = ({children})=>{
                 <FaRegUserCircle
                  className={style.logo}
                  onClick={()=>{
-                     router.replace(`/userprofile`)
+                     router.push(`/userprofile`)
                     }}
                     />
             </div>
@@ -128,7 +139,7 @@ const Layout :React.FC<LayoutProps> = ({children})=>{
             <div 
         className={style.right}
         onClick={()=>{
-            router.replace('/Auth')
+            router.push('/Auth')
         }}
         >
             <p>

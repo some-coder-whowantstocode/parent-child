@@ -1,0 +1,106 @@
+.title{
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 1rem;
+}
+
+@keyframes dim {
+    0% , 100%{
+        background-color: rgba(223, 223, 223, 0.582);
+    }
+    50%{
+        background-color: rgb(223, 221, 221);
+    }
+}
+.skeleton{
+    width: 80dvw;
+    height: 60px;
+    border-radius: 0.8rem;
+    margin: 1rem;
+    animation: dim 1s linear infinite;
+}
+
+.add{
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    transform: scale(1.4);
+    padding: 0.4rem;
+    border: 2px solid rgb(7, 33, 88);
+    color: rgb(7, 33, 88);
+    border-radius: 0.3rem;
+    margin: 1rem;
+    transition: all 0.2s ;
+    cursor: pointer;
+}
+.add:hover{
+    background-color: rgb(7, 33, 88);
+    color: white;
+}
+
+
+.addblock{
+    position: absolute;
+    height: 100vh;
+    width: 100vw;
+    bottom: 0;
+    right: 0;
+    animation: intro 0.4s linear;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.76);
+}
+.addblock div{
+    /* background-color: green; */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: rgb(2, 21, 85);
+    color: white;
+    padding: 1rem;
+    border-radius: 1rem;
+    font-size: 1.3rem;
+    font-weight: 600;
+}
+.addblock input{
+    width: 300px;
+    font-size: 1.1rem;
+    padding: 0.3rem;
+}
+.addblock button{
+    font-size: 1.2rem;
+    padding: 0.3rem 0.5rem;
+    border-radius: 0.5rem;
+    border: 2px solid white;
+    background-color: transparent;
+    color: white;
+    margin: 1rem;
+    cursor: pointer;
+    transition: all 0.2s ;
+}
+.addblock button:hover{
+    background-color: white;
+    color: rgb(2, 21, 85);
+}
+
+
+@keyframes intro {
+    0%{
+        height: 2rem;
+        width: 2rem;
+        background-color: rgb(241, 241, 241);
+    }
+    100%{
+        right: 50%;
+        bottom: 50%;
+        transform: translateX(50%) translateY(50%);
+    }
+}
+
+.placeholder{
+    margin: 1rem;
+    font-size: 1.2rem;
+    color: rgb(61, 54, 54);
+}

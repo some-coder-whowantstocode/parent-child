@@ -3,6 +3,8 @@ import React, { createContext, ReactNode, useContext, useRef } from "react";
 import { useDispatch } from "react-redux";
 import { setError, setMessage } from "../slices/popupSlice";
 import { login } from "../slices/authSlice";
+import { useRouter } from "next/navigation";
+import { errorhandler } from "../errorhandler";
 
 
 interface UserContextType {
@@ -18,6 +20,8 @@ const workerContext = createContext<UserContextType | undefined>(undefined);
 const WorkerProvider:React.FC<MyComponentProps> = ({children})=>{
     const authWorkerRef = useRef<Worker | null>(null);
     const URL = '/workers/worker.js';
+
+    const router = useRouter()
 
     const dispatch = useDispatch();
     
@@ -43,32 +47,33 @@ const WorkerProvider:React.FC<MyComponentProps> = ({children})=>{
         }
     }
 
-    const useauthWorker =(objectdata : object)=>{
-        try {
-            startauthWorker();
-            const webworker = authWorkerRef.current;
-            if(webworker){
-                webworker.postMessage(objectdata);
-                webworker.onmessage = function(event){
-                    const {data} = event;
-                    
-                    if(!data.success){
-                      dispatch(setError(data.err))
-                    }else{
-                        dispatch(setMessage(data.message))
-                        if(data.username && data.email && data.fullname && data.type) dispatch(login(data));
-                    }
-                  }
-                webworker.onerror = function(err){
-                    dispatch(setError("worker failed to initiated"));
-                    console.log(err)
-                }
-            }
-          
-        } catch (error) {
-            console.log(error)
+
+
+    const useauthWorker =async(objectdata : object)=>{
+        const stringdata = JSON.stringify(objectdata);
+        const url = '/API/User/Auth';
+
+        const response = await fetch(url,{
+          method:'POST',
+          headers:{
+            "Content-Type":"application/json"
+          },
+          body:stringdata
+        });
+        const result = await response.json();
+        if(!result){
+            throw new Error('Authentication failed')
         }
-         
+
+        if (!result?.success && !objectdata?.retrieve) {
+            throw new Error(result.err || result.error || "something went wrong")
+          }
+        if(result.username && result.email && result.fullname && result.type){
+            dispatch(login(result));
+            router.replace('/userprofile')
+        }
+        return result;
+            
     }
 
     return (

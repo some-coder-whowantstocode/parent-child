@@ -39,9 +39,9 @@ export const GET =  errorHandler(
 
         const userdata = await User.aggregate([
             {$match:{username:decoded.username}},
-            {$project:{Connections:{$slice:['$Connections',skip,limit]}, isdeleted:1, isverified:1}},
-            {$lookup:{from:"User",localField:"Connections",foreignField:'_id',as:'Connections'}},
-            {$project:{Connections:{username:1},isdeleted:1,isverified:1}}
+            {$project:{connectionRequested:{$slice:['$connectionRequested',skip,limit]}, isdeleted:1, isverified:1}},
+            {$lookup:{from:"User",localField:"connectionRequested",foreignField:'_id',as:'connectionRequested'}},
+            {$project:{connectionRequested:{username:1},isdeleted:1,isverified:1}}
         ])
 
         const user = userdata[0]
@@ -58,8 +58,8 @@ export const GET =  errorHandler(
     
         return NextResponse.json({
             success:true,
-            message:"connections retrieved successfully",
-            connections:user.Connections
+            message:"connectionRequested retrieved successfully",
+            connectionRequested:user.connectionRequested
         })
     
     

@@ -62,13 +62,13 @@ export async function POST(req: NextApiRequest) {
             );
         }
         await dbconnect();
-        const user = await User.updateOne({_id:identifier},{$pull:{connectionRequests:{id:decoded.id}}});
+        const user = await User.updateOne({_id:identifier},{$pull:{connectionRequests:decoded.id}});
 
         if(user.modifiedCount == 0){
             return NextResponse.json({err:'No such user exists'},{status:400})
         }
 
-        const reciever = await User.updateOne({_id:decoded.id},{$pull:{connectionRequested:{id:identifier}}});
+        const reciever = await User.updateOne({_id:decoded.id},{$pull:{connectionRequested:identifier}});
 
             return NextResponse.json(
                 {

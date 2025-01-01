@@ -1,7 +1,8 @@
 .paper{
-    height: 100dvh;
+    /* height: 100dvh; */
     width: 100dvw;
     position: relative;
+   
 }
 .title{
     width: 100dvw;
@@ -11,6 +12,8 @@
     align-items: center;
     justify-content: center;
     margin-bottom: 0.5rem;
+    user-select: none;
+    -webkit-user-select: none;
 }
 .header{
     display: flex;
@@ -44,27 +47,28 @@
     color: white;
 }
 .preview{
-    border: 2px solid black;
-    height: 100%;
+    /* border: 2px solid black; */
+    /* height: 100%; */
+    min-height: 30vh;
     width: 100%;
+    background-color: rgb(252, 240, 240);
 }
 .add{
     position: fixed;
-    top: 20%;
+    top: 7%;
     right: 0;
     margin: 1rem;
     padding: 0.4rem 0.5rem;
     border: none;
-    background-color: green;
-    color: white;
     border-radius: 0.4rem;
     font-size: 1rem;
     cursor: pointer;
 }
+/* form */
 .questionform{
-    /* display: none; */
     width: 100dvw;
     height: 100dvh;
+    /* background-color: rgb(252, 240, 240); */
     background-color: white;
     position: fixed;
     left: 0;
@@ -73,16 +77,32 @@
     padding: 1rem;
     box-sizing: border-box;
 }
+.questionform textarea{
+    background-color: rgb(252, 240, 240);
+
+}
 .hidden{
     display: none;
 }
 
 .questionformheader{
     display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.formtitle{
+    width: 100dvw;
+    font-size: 1.4rem;
+    font-weight: 600;
+    /* display: flex; */
+    margin-bottom: 0.5rem;
 }
 .questionType{
     position: relative;
     margin-right: 2rem;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
 }
 .questionType div{
     display: flex;
@@ -123,10 +143,16 @@
 }
 .score input{
     outline: none;
-    margin-left: 1rem;
+    /* margin-left: 1rem; */
+    background-color: rgb(252, 240, 240);
+    font-size: 1rem;
+    border: 1px solid gray;
+    max-width: 30vw;
 }
 .score{
-    margin-left: 1rem;
+    margin: 1rem;
+    display: flex;
+    font-size: 1rem;
 }
 .question , .answer{
     width: 100%;
@@ -139,6 +165,7 @@
     font-size: 1rem;
     
 }
+
 .questionadons{
     width: 100%;
     margin-bottom: 4rem;   
@@ -146,18 +173,131 @@
 .multiplechoice{
     display: flex;
     flex-direction: column;
-    border: 2px solid black;
     width: 100%;
+    outline: none;
+
     /* align-items: baseline; */
     /* justify-content: baseline; */
 }
 .option{
     display: flex;
+    padding: 0.3rem;
+
 }
 .option p{
     margin: 0 0.3rem;
 }
 .options{
     display: grid;
-    grid-template-columns: auto auto;
+    grid-template-columns: repeat(2,1fr);
+}
+.floatcancel{
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 111111;
+    background-color: rgba(128, 128, 128, 0.404);
+    height: 100dvh;
+    width: 100dvw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.floatcontent{
+    /* background-color: rgb(0, 0, 0); */
+    width: 60dvw;
+    padding: 1rem;
+    font-size: 1.2rem;
+    /* color: white; */
+    background-color: white;
+}
+.alert{
+    color: rgb(255, 0, 0);
+    font-size: 1rem;
+}
+.Save , .Cancel{
+    font-weight: 600;
+}
+.Save{
+    color: green;
+    border: 2px solid green;
+    border-radius: 0.4rem;
+    padding: 0.3rem 0.5rem;
+}
+.Save:hover{
+    background-color: green;
+    color: white;
+}
+.Cancel {
+    color: rgb(129, 0, 0);
+    border: 2px solid rgb(128, 0, 0);
+    border-radius: 0.4rem;
+    padding: 0.3rem 0.5rem;
+}
+.Cancel:hover{
+    background-color:  rgb(129, 0, 0);
+    color: white;
+}
+.Save , .Cancel{
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.2s;
+    margin: 0.4rem;
+}
+.addopt input{
+    margin-right: 1rem;
+    border: 1px dashed black;
+}
+.matchOpts{
+    display: grid;
+    grid-template-columns: 3rem repeat(2,1fr) 3rem;
+}
+
+.matchOpts div , .matchOpts input{
+    border: 1px solid black;
+    border-right: 0px;
+    padding: 0.5rem;
+    font-size: 1rem;
+    background-color: rgb(252, 240, 240);
+}
+.addmatch{
+    /* transform: scale(1.4); */
+    cursor: pointer;
+}
+.formbtn{
+    font-size: 1rem;
+    padding: 0.4rem;
+    margin: 0.5rem;
+    cursor: pointer;
+    border-radius: 0.4rem;
+}
+.Questionpaper{
+    /* background-color: black; */
+    display: grid;
+    grid-template-columns: 3rem 1fr 4rem 2rem;
+    font-size: 1.2rem;
+    column-gap: 1rem;
+    padding: 1rem;
+    word-break: break-all;
+}
+.ques{
+    font-weight: 600;
+}
+.match div{
+    /* display: flex; */
+    display: grid;
+    grid-template-columns: 200px 200px;
+    column-gap: 2rem;
+}
+.match div p{
+    text-wrap: wrap;
+    word-break: break-all;
+    margin: 0.4rem 0;
+}
+.opt{
+    margin-left: 0.4rem;
+}
+.Del{
+    cursor: pointer;
 }
