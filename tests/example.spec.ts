@@ -1,8 +1,9 @@
 import { test, expect } from '@playwright/test';
 
-test('has title', async ({ page }) => {
-  await page.goto('http://localhost:3000/Auth');
-
-  // Expect a title "to contain" a substring.
-  await expect(page).toHaveTitle('parent-child');
+test('signup working', async ({ request }) => {
+  const response = await request.post('http://localhost:3000/API/User/Auth',{
+    data:{}
+  })
+  console.log(response)
+  expect(response.status()).toBe(400);
 });
