@@ -5,10 +5,10 @@ export function errorHandler(handler:Function){
     return async function(req:NextApiRequest, resp:NextResponse){
         try {
             const res = await handler(req, resp); 
-            return res
+            return res;
         } catch (error : Error | any) {
-          console.log(error)
             let errmsg = null;
+            let errstatus = 500;
 
             if (error.name === "MongoNetworkError") {
               errmsg = "Network error: " + error.message;
@@ -18,6 +18,7 @@ export function errorHandler(handler:Function){
               let verr: Error | any = Object.values(error.errors)[0];
               errmsg = verr.message;
             } else if (error.code === 11000) {
+              errstatus = 409;
               errmsg = `${
                 Object.keys(error.errorResponse.keyValue)[0]
               } already exists, please choose another.`;
@@ -25,14 +26,14 @@ export function errorHandler(handler:Function){
             
             return NextResponse.json(
               {
-                err:
+                error:
                   errmsg ||
                   error.message ||
                   "something went wrong while creating account.",
                 success: false,
-                statusCode: error.statusCode || 500,
+                statusCode: error.statusCode || errstatus,
               },
-              { status: error.statusCode || 500 }
+              { status: error.statusCode || errstatus }
             );
         }
     }

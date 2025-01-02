@@ -9,6 +9,8 @@ import { FaRegUserCircle } from "react-icons/fa";
 import { useWorker } from "../lib/contexts/workerContext";
 import { useDispatch, useSelector } from "react-redux";
 import { errorhandler } from "../lib/errorhandler";
+import mountains from '../../../public/pngtree-snowy-mountain-png-image_7770970.png'
+import Image from "next/image";
 
 const Layout :React.FC<LayoutProps> = ({children})=>{
 
@@ -19,6 +21,8 @@ const Layout :React.FC<LayoutProps> = ({children})=>{
     const {loggedIn, type} = useSelector(useAuth);
     const {useauthWorker} = useWorker();
     const dispatch = useDispatch();
+    const [pageload, setload] = useState(true);
+    const fillbarRef = useRef(null);
 
     const LOCATIONS = [
     {name:'Samplepapers', location:"Samplepapers", t:"guardian"},
@@ -27,10 +31,14 @@ const Layout :React.FC<LayoutProps> = ({children})=>{
 
     const SECUREDPAGES = [
         'userprofile',
-        'samplepapers'
+        'samplepapers',
+        'connections'
     ]
 
     useEffect(()=>{
+        if(SECUREDPAGES.includes(currentlocation) && !loggedIn){
+            router.replace('/Auth')
+        }
             const setPosition = ()=>{
                 try {
                     if(!barRef.current || !followerRef.current) return;
@@ -74,17 +82,40 @@ const Layout :React.FC<LayoutProps> = ({children})=>{
                 }
             }
 
+
+
             window.addEventListener("resize",debounce(setPosition,150));
 
             return()=>{
                 window.removeEventListener('resize',debounce(setPosition,150));
             }
+
       
     },[currentlocation])
 
     useEffect(()=>{
-        console.log(useauthWorker)
-         errorhandler(useauthWorker,{retrieve:true});
+        (async()=>{
+            setload(prev=>prev=true);
+            const id = setTimeout(() => {
+             setload(prev=>prev=false);
+                clearTimeout(id);
+            }, 1000);
+             await errorhandler(useauthWorker,{retrieve:true});
+             if(fillbarRef.current){
+                const element:HTMLElement = fillbarRef.current;
+                element.style.width = '100%';
+
+                router.replace('/Auth')
+               
+             }
+             setload(prev=>prev=false);
+
+             return()=>{
+                clearTimeout(id);
+             }
+    
+        })()
+        
     },[])
 
  
@@ -151,6 +182,19 @@ const Layout :React.FC<LayoutProps> = ({children})=>{
         
         <div ref={followerRef} className={style.follower}></div>
     </nav>
+    {pageload && <div
+    className={style.loadingpage}
+    >
+        <div 
+        className={style.bar}
+        >
+            <div
+            ref={fillbarRef}
+            className={style.innerbar}
+            ></div>
+        </div>
+       
+    </div> }
     {children}
     </>)
 }

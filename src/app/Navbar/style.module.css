@@ -1,5 +1,5 @@
 .nav {
-  position:sticky;
+  position: sticky;
   top: 0;
   left: 0;
   width: 100dvw;
@@ -50,10 +50,10 @@
 .right {
   margin-right: 2rem;
 }
-.right> p{
+.right > p {
   cursor: pointer;
 }
-.logo{
+.logo {
   cursor: pointer;
   margin-right: 2rem;
   display: flex;
@@ -61,21 +61,86 @@
   justify-content: center;
   font-size: 1.5rem;
 }
-.jiggle{
-    animation: jiggleRight 0.3s linear ease-in-out;
+.jiggle {
+  animation: jiggleRight 0.3s linear ease-in-out;
 }
 @keyframes jiggleRight {
-    0%{
-      transform: translateX(0);
-    }
-    25% {
-      transform: translateX(-10px);
-    }
-    75% {
-      transform: translateX(10px);
-    }
-    100%{
-      transform: translateX(0);
-
-    }
+  0% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-10px);
+  }
+  75% {
+    transform: translateX(10px);
+  }
+  100% {
+    transform: translateX(0);
+  }
 }
+
+
+/* loading page  */
+.loadingpage {
+  height: 100dvh;
+  width: 100dvw;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background-color: white;
+  z-index: 99999999999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.bar{
+  width: 90vw;
+  height: 10px;
+  /* background-color: blue; */
+  border: 2px solid skyblue;
+  margin: 2rem;
+}
+.innerbar{
+  background-color: pink;
+  width: 0%;
+  height: 100%;
+  animation: fillup 100s linear forwards;
+}
+
+@keyframes fillup {
+  0%{
+    width: 0%;
+  } 
+  10%{
+    width: 20%;
+  }
+  20%{
+    width: 30%;
+  }
+  30%{
+    width: 50%;
+  }
+  40%{
+    width: 50%;
+  }
+  50%{
+    width: 50%;
+  }
+  60%{
+    width: 60%;
+  }
+  70%{
+    width: 65%;
+  }
+  80%{
+    width: 70%;
+  }
+  90%{
+    width: 75%;
+  }
+  100%{
+    width: 90%;
+  }
+}
+/* loading page */

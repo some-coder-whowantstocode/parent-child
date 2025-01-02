@@ -65,9 +65,7 @@ const WorkerProvider:React.FC<MyComponentProps> = ({children})=>{
             throw new Error('Authentication failed')
         }
 
-        if (!result?.success && !objectdata?.retrieve) {
-            throw new Error(result.err || result.error || "something went wrong")
-          }
+        
         if(result.username && result.email && result.fullname && result.type){
             dispatch(login(result));
             router.replace('/userprofile')

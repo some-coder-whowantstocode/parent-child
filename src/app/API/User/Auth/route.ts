@@ -12,6 +12,7 @@ import { BadRequest, Unauthorized } from "../../responses/errors";
 import { serialize } from "cookie";
 import { verifyToken } from "@/app/lib/middleware/verifyToken";
 import { errorHandler } from "@/app/lib/middleware/errorhandler";
+import { cookies } from "next/headers";
 
 interface USER {
   isverified: boolean;
@@ -57,17 +58,7 @@ export const POST = errorHandler( async (req: NextApiRequest)=> {
       const { fullname, username, email, password, type } = data;
 
       if (!fullname || !username || !email || !password || !type) {
-      throw new BadRequest("please provide all required data");
-      }
-
-      if (
-        typeof fullname != "string" &&
-        typeof username != "string" &&
-        typeof email != "string" &&
-        typeof password != "string" &&
-        typeof type != "string"
-      ) {
-      throw new BadRequest("The type of the data provided are incorrect");
+      throw new BadRequest("please provide all required data.fullname, username, email, password and type.");
       }
 
       if(password.length < 6 || password.length > 20){
@@ -109,12 +100,6 @@ export const POST = errorHandler( async (req: NextApiRequest)=> {
       if (!token) {
         throw new BadRequest("please provide all required data")
       }
-
-      if (typeof token != "string") {
-        throw new BadRequest("The type of the data provided are incorrect")
-      }
-
-      
 
       const decodedtoken = await jwt.verify(token, secretKey) as {email:string, fullname:string}
       if (!decodedtoken || !decodedtoken.email || !decodedtoken.fullname) {
@@ -166,7 +151,6 @@ export const POST = errorHandler( async (req: NextApiRequest)=> {
 
       return NextResponse.json(
         {
-          verified: true,
           success:true,
           message:"successfully verified"
         },
@@ -179,7 +163,7 @@ export const POST = errorHandler( async (req: NextApiRequest)=> {
       const regex =
         /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/g;
       if (!identifier || !password) {
-        throw new BadRequest("please provide all required data");
+        throw new BadRequest("please provide identifier and password.");
       }
 
       if (typeof identifier != "string" && typeof password != "string") {
@@ -230,6 +214,7 @@ export const POST = errorHandler( async (req: NextApiRequest)=> {
         secretKey,
         { expiresIn: "24h" }
       );
+       
       const cookie = serialize('authToken',verificationToken,{
         httpOnly:true,
         secure:process.env.NODE_ENV === "production",
@@ -254,23 +239,23 @@ export const POST = errorHandler( async (req: NextApiRequest)=> {
     }
 
     if (data.retrieve){
-        const token = req.cookies._parsed.get('authToken').value;
-        
+        const cookiestore = await cookies();
+        const token = cookiestore.get("authToken")?.value;        
         if(!token){
           throw new BadRequest("no token was found");
         }
         const decoded = await verifyToken(token);
         const user = await User.findOne({username:decoded?.username}).select("isdeleted fullname email")
-        console.log(user)
         return NextResponse.json({
           success: true,
           username:decoded?.username,
           fullname:user.fullname,
           email:user.email,
-          type:decoded?.type
+          type:decoded?.type,
+          message:"logged in successfully"
         },{status:200})
     }
 
-    throw new BadRequest("request is without intent please clear the intent")
+    throw new BadRequest("Please add one type of intent create, verify, login or retrieve. Adding intent is as follows: create:true in request body.")
 
 })

@@ -42,8 +42,8 @@ const page = () => {
 
       }
         
-      errorhandler(useauthWorker,objectdata);
-      
+      await errorhandler(useauthWorker,objectdata);
+      inputdata.reset();
     } catch (error) {
       console.log(error)
     }
