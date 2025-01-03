@@ -62,6 +62,7 @@ export const POST = errorHandler(async(req:NextApiRequest)=>{
 
         return NextResponse.json({
             message:"sample paper created successfully",
-            success:true
+            success:true,
+            
         },{status:201})
 })

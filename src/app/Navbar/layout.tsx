@@ -3,26 +3,27 @@ import React, { useEffect, useRef, useState } from "react";
 import { LayoutProps } from "../../../.next/types/app/layout";
 import style from './style.module.css'
 import { v4 } from "uuid";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { logout, useAuth, value } from "../lib/slices/authSlice";
 import { FaRegUserCircle } from "react-icons/fa";
 import { useWorker } from "../lib/contexts/workerContext";
 import { useDispatch, useSelector } from "react-redux";
 import { errorhandler } from "../lib/errorhandler";
-import mountains from '../../../public/pngtree-snowy-mountain-png-image_7770970.png'
-import Image from "next/image";
+import { authEnd, useProcess } from "../lib/slices/processSlice";
 
 const Layout :React.FC<LayoutProps> = ({children})=>{
 
     const barRef = useRef(null);
     const followerRef = useRef(null);
     const router = useRouter();
-    const [currentlocation, setlocation] = useState("problems");
+    const path = usePathname();
+    const [currentlocation, setlocation] = useState(path.slice(1,path.length));
     const {loggedIn, type} = useSelector(useAuth);
     const {useauthWorker} = useWorker();
     const dispatch = useDispatch();
     const [pageload, setload] = useState(true);
     const fillbarRef = useRef(null);
+    const {authprocess} = useSelector(useProcess);
 
     const LOCATIONS = [
     {name:'Samplepapers', location:"Samplepapers", t:"guardian"},
@@ -31,12 +32,13 @@ const Layout :React.FC<LayoutProps> = ({children})=>{
 
     const SECUREDPAGES = [
         'userprofile',
-        'samplepapers',
+        'Samplepapers',
         'connections'
     ]
 
     useEffect(()=>{
-        if(SECUREDPAGES.includes(currentlocation) && !loggedIn){
+        if(SECUREDPAGES.includes(currentlocation) && !loggedIn && authprocess){
+            console.log('are you not working dude')
             router.replace('/Auth')
         }
             const setPosition = ()=>{
@@ -45,19 +47,20 @@ const Layout :React.FC<LayoutProps> = ({children})=>{
             
                     const Bar : HTMLElement = barRef.current;
                     const follower : HTMLElement = followerRef.current;
-        
+    
                     for(let i =0;i<Bar.children.length;i++){
-                        if( currentlocation === Bar.children[i].innerHTML ){
-                            const child  = Bar.children[i] as HTMLElement;
+                        if( currentlocation === Bar.children[i].children[0].innerHTML ){
+                            const child  = Bar.children[i].children[0] as HTMLElement;
         
                             const distanceX = child.offsetLeft - follower.offsetLeft;
                             const distanceY = child.offsetTop - follower.offsetTop;
-        
+    
+                            const p = 7;
                             follower.style.backgroundColor = "gray";
                             follower.style.position = 'fixed';
-                            follower.style.transform = `translateX(${distanceX}px) translateY(${distanceY}px)`;
-                            follower.style.width = `${child.offsetWidth}px`;
-                            follower.style.height = `${child.offsetHeight}px`;
+                            follower.style.transform = `translateX(${distanceX-p/2}px) translateY(${distanceY-p/2}px)`;
+                            follower.style.width = `${child.offsetWidth +p}px`;
+                            follower.style.height = `${child.offsetHeight +p}px`;
                         
                             follower.classList.add(style.jiggle);
 
@@ -91,7 +94,7 @@ const Layout :React.FC<LayoutProps> = ({children})=>{
             }
 
       
-    },[currentlocation])
+    },[currentlocation,loggedIn,authprocess])
 
     useEffect(()=>{
         (async()=>{
@@ -105,10 +108,18 @@ const Layout :React.FC<LayoutProps> = ({children})=>{
                 const element:HTMLElement = fillbarRef.current;
                 element.style.width = '100%';
 
-                router.replace('/Auth')
+               
                
              }
+             console.log(loggedIn,SECUREDPAGES.includes(currentlocation))
+            //  if(SECUREDPAGES.includes(currentlocation) && !loggedIn){
+            //     console.log('fasdijofsd')
+            //     router.replace('/Auth')
+            // }
+            console.log(loggedIn,SECUREDPAGES.includes(currentlocation))
+            
              setload(prev=>prev=false);
+             dispatch(authEnd())
 
              return()=>{
                 clearTimeout(id);
@@ -116,7 +127,7 @@ const Layout :React.FC<LayoutProps> = ({children})=>{
     
         })()
         
-    },[])
+    },[loggedIn])
 
  
 
@@ -140,7 +151,6 @@ const Layout :React.FC<LayoutProps> = ({children})=>{
                 loggedIn && LOCATIONS.map(({name, location, t})=>(
                     <div
                     key={v4()}
-                    
                     >
                    { (t === 'all' || t === type)&&  <p
                     onClick={()=>{

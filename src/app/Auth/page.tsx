@@ -4,6 +4,9 @@ import React, { useState } from 'react';
 import style from './style.module.css'
 import { useWorker } from '../lib/contexts/workerContext';
 import { errorhandler } from '../lib/errorhandler';
+import { useDispatch, useSelector } from 'react-redux';
+import { authEnd, authInit, useProcess } from '../lib/slices/processSlice';
+import { useRouter } from 'next/navigation';
 
 
 const page = () => {
@@ -13,7 +16,11 @@ const page = () => {
   const [type, settype] = useState(false);
 
   const {useauthWorker} = useWorker();
+  const {authprocess} = useSelector(useProcess);
+  const dispatch = useDispatch();
 
+  const router = useRouter()
+  
 
 
   function change(){
@@ -24,9 +31,12 @@ const page = () => {
       clearTimeout(timeid);
     }, 300);
   }
-  async function Auth(e:React.FormEvent<HTMLFormElement>,create:boolean){
+  async function Auth(e:React.FormEvent<HTMLFormElement>,create:boolean,message:string){
     try {
       e.preventDefault();
+      console.log(message)
+        if(!authprocess) return;
+        dispatch(authInit(message))
       let inputdata = e.target as HTMLFormElement;
       let data = new FormData(inputdata);
       
@@ -41,9 +51,11 @@ const page = () => {
         objectdata['login'] = 'true';
 
       }
-        
-      await errorhandler(useauthWorker,objectdata);
+        console.log(message)
+      await errorhandler(useauthWorker,objectdata, message);
       inputdata.reset();
+        dispatch(authEnd());
+        router.push('/userprofile');
     } catch (error) {
       console.log(error)
     }
@@ -92,7 +104,7 @@ const page = () => {
           <div
           className={style.title}
           >Sign Up</div>
-          <form onSubmit={(e)=>Auth(e,true)} >
+          <form onSubmit={(e)=>Auth(e,true,'signing up...')} >
             <div>
             <p>username</p>
             <input type="text" name='username' placeholder='superJohn' className={style.datainput}/>
@@ -146,7 +158,7 @@ const page = () => {
           <div
           className={style.title}
           >Log In</div>
-          <form onSubmit={(e)=>Auth(e,false)}>
+          <form onSubmit={(e)=>Auth(e,false,'loggin in...')}>
             <div>
             <p>email or username</p>
             <input type="text" name='identifier' placeholder='superJohn' className={style.datainput}/>

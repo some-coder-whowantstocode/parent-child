@@ -9,6 +9,7 @@ import { v4 } from "uuid";
 import { setError } from "@/app/lib/slices/popupSlice";
 import {useDispatch} from 'react-redux';
 import { useRouter } from "next/navigation";
+import { errorhandler } from "@/app/lib/errorhandler";
 
 interface match {
   left: string;
@@ -205,7 +206,10 @@ const page = () => {
         <div>
           <button
           className={style.Save}
-          onClick={()=>createSamplePaper()}
+          onClick={async()=>{
+            errorhandler(createSamplePaper, clearQuestion);
+            // await createSamplePaper()
+          }}
           >save</button>
           <button 
           className={style.Cancel}

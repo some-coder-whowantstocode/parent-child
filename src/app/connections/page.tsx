@@ -9,7 +9,7 @@ import { useAuth } from '../lib/slices/authSlice';
 
 const page =()=>{
     
-    const {getConnections, getConnectionrequested, getConnectionrequests, sendConnectionRequest, connections, request, requested, connload, conreqedload, conreqload} = useConn();
+    const {reqloaded, connloaded, reqedloaded, getConnections, getConnectionrequested, getConnectionrequests, sendConnectionRequest, connections, request, requested, connload, conreqedload, conreqload} = useConn();
     const {loggedIn} = useSelector(useAuth);
     
     const [initadd, setadd] = useState(false);
@@ -18,9 +18,15 @@ const page =()=>{
 
     useEffect(()=>{
         if(loggedIn){
-            getConnections();
-            getConnectionrequested();
-            getConnectionrequests();
+            if(!connloaded){
+                getConnections();
+            }
+            if(!reqedloaded){
+                getConnectionrequested();
+            }
+            if(!reqloaded){
+                getConnectionrequests();
+            }
         }
     },[])
     

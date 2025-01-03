@@ -1,10 +1,11 @@
 'use client'
 import React, { createContext, ReactNode, useContext, useRef } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setError, setMessage } from "../slices/popupSlice";
 import { login } from "../slices/authSlice";
 import { useRouter } from "next/navigation";
 import { errorhandler } from "../errorhandler";
+import { authEnd, authInit, useProcess } from "../slices/processSlice";
 
 
 interface UserContextType {
@@ -18,6 +19,7 @@ interface MyComponentProps { children: ReactNode}
 const workerContext = createContext<UserContextType | undefined>(undefined);
 
 const WorkerProvider:React.FC<MyComponentProps> = ({children})=>{
+    const {authprocess} = useSelector(useProcess);
     const authWorkerRef = useRef<Worker | null>(null);
     const URL = '/workers/worker.js';
 
@@ -50,6 +52,7 @@ const WorkerProvider:React.FC<MyComponentProps> = ({children})=>{
 
 
     const useauthWorker =async(objectdata : object)=>{
+        
         const stringdata = JSON.stringify(objectdata);
         const url = '/API/User/Auth';
 
@@ -64,11 +67,11 @@ const WorkerProvider:React.FC<MyComponentProps> = ({children})=>{
         if(!result){
             throw new Error('Authentication failed')
         }
-
         
         if(result.username && result.email && result.fullname && result.type){
             dispatch(login(result));
-            router.replace('/userprofile')
+            // router.replace('/userprofile')
+            dispatch(setMessage(result.message))
         }
         return result;
             

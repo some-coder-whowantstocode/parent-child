@@ -35,7 +35,7 @@
   color: black;
   z-index: 2000;
 }
-.middle > p {
+.middle > div {
   margin: 0 1vw;
   padding: 0.2rem 0.5rem;
   cursor: pointer;

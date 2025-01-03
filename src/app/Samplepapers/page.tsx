@@ -6,22 +6,17 @@ import style from './style.module.css';
 import { v4 } from "uuid";
 import { useRouter } from "next/navigation";
 import { setError, setMessage } from "../lib/slices/popupSlice";
+import { useSample } from "../lib/contexts/samplepaperContext";
+import { papers } from "../lib/contexts/samplepaperContext";
 
-interface papers {
-    title:string,
-    _id:string,
-    responseCount:number,
-    createdAt:string,
-    totalScore:number,
-    passingMark:number
-}
+
 const page =()=>{
     //retrieve all sample papers 
     const {loggedIn} = useSelector(useAuth);
-    const [samplepapers, setpapers] = useState<papers[]>([]);
     const [loading, setloading] = useState(false);
     const router = useRouter();
     const dispatch = useDispatch();
+    const {samplepapers, setpapers, dataloaded} = useSample();
 
     const getSamplePapersForGuardian =async()=>{
         try {
@@ -45,7 +40,7 @@ const page =()=>{
                 dispatch(setMessage(jsondata.message || 'sample papers retrieved successfully'))
                 console.log(jsondata)
             }    
-        } catch (error) {
+        } catch (error : Error | any) {
             console.log(error);
             dispatch(setError(error.message ? error.message : 'failed to retrieve samplepapers'))
         }finally{
@@ -54,12 +49,9 @@ const page =()=>{
         
     }
 
-    useEffect(()=>{
-            getSamplePapersForGuardian()
-       
-    },[])
 
     useEffect(()=>{
+        if(dataloaded) return;
         if(loggedIn){
             getSamplePapersForGuardian()
 

@@ -15,6 +15,10 @@ interface sendval {
     createSamplePaper:Function;
     title:string;
     settitle:Function;
+    samplepapers:papers[];
+    setpapers:Function;
+    dataloaded:boolean,
+    setload:Function
 }
 
 interface match{
@@ -28,10 +32,15 @@ export interface question {
     options?: string[],
     correctAnswer:string,
     matchPairs?:match[],
-    //     chronologicalOrder:[{type:Number}],
-    //     mapDetails:{type:String},
-    //     caseText:{type:String},
         score:number
+}
+export interface papers {
+    title:string,
+    _id:string,
+    responseCount:number,
+    createdAt:string,
+    totalScore:number,
+    passingMark:number
 }
 
 const samplePaperContext = createContext<sendval | undefined>(undefined);
@@ -46,11 +55,14 @@ const SampleProvider: React.FC<samplectx> = ({children})=>{
         'match-up',
         'true-false',
     ]
+    const [samplepapers, setpapers] = useState<papers[]>([]);
+    const [dataloaded, setload] = useState(false);
+
+
 
     const dispatch = useDispatch();
 
-    const createSamplePaper =async()=>{
-        try {
+    const createSamplePaper =async(func:Function)=>{
             const url = '/API/Sample_papers/Create';
             const objectdata = {
                 questions,
@@ -68,20 +80,21 @@ const SampleProvider: React.FC<samplectx> = ({children})=>{
                     body:stringdata
                 }
             )
-            console.log(data);
             const jsondata = await data.json();
-            console.log(jsondata)
-            dispatch(setMessage('paper created successfully'))
-        } catch (error) {
-            console.log(error);
-            dispatch(setError('paper creation failed'))
-        }
+            console.log(jsondata.success)
+            if(jsondata.success){
+                dispatch(setMessage('paper created successfully'))
+                setquestions([]);
+                func();
+            }
+            setload(true);
+            return jsondata;
     }
 
 
     return(
         <samplePaperContext.Provider
-        value ={{QUESTION_TYPES, questions, setquestions, createSamplePaper, title, settitle}}
+        value ={{QUESTION_TYPES,samplepapers,dataloaded, setload, setpapers ,questions, setquestions, createSamplePaper, title, settitle}}
         >
             {children}
         </samplePaperContext.Provider>

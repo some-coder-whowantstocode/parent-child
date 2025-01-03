@@ -31,7 +31,13 @@ interface sendval {
     getConnections:Function,
     sendConnectionRequest:Function,
     getConnectionrequests:Function,
-    getConnectionrequested:Function
+    getConnectionrequested:Function,
+    reqloaded:boolean,
+    setreqload:Function,
+    connloaded:boolean,
+    setconnload:Function,
+    reqedloaded:boolean,
+    setreqedload:Function,
 }
 
 
@@ -44,6 +50,13 @@ const ConnectionProvider: React.FC<ctx> = ({children})=>{
     const [connload, setconn] = useState(false);
     const [conreqload, setconreq] = useState(false);
     const [conreqedload, setconreqed] = useState(false);
+
+    // for initital load
+    const [reqloaded, setreqload] = useState(false);
+    const [connloaded, setconnload] = useState(false);
+    const [reqedloaded, setreqedload] = useState(false);
+
+    
 
     const dispatch = useDispatch();
 
@@ -86,6 +99,7 @@ const ConnectionProvider: React.FC<ctx> = ({children})=>{
             dispatch(setError(error.message || "something went wrong while getting connection"))
         }finally{
             setconreq(false)
+            setreqload(true);
         }
     }
 
@@ -107,11 +121,13 @@ const ConnectionProvider: React.FC<ctx> = ({children})=>{
             dispatch(setError(error.message || "something went wrong while getting connection"))
         }finally{
             setconreqed(false)
+            setreqedload(true);
         }
     }
 
     const sendConnectionRequest =async(identifier : string)=>{
         try {
+            setconn(true);
             if(!identifier ){
                 dispatch(setError("please provide a identifier to connect"));
                 return;
@@ -133,7 +149,11 @@ const ConnectionProvider: React.FC<ctx> = ({children})=>{
             console.log(jsondata);
         } catch (error:any) {
             console.log(error.message)
+            
             dispatch(setError(error.message || "something went wrong while sending request"))
+        }finally{
+            setconn(false);
+            setconnload(true);
         }
     }
 
@@ -155,7 +175,14 @@ const ConnectionProvider: React.FC<ctx> = ({children})=>{
             getConnections,
             sendConnectionRequest,
             getConnectionrequests,
-            getConnectionrequested
+            getConnectionrequested,
+            connloaded,
+            setconnload,
+            reqedloaded,
+            setreqedload,
+            reqloaded,
+            setreqload,
+
         }}
         >
             {children}

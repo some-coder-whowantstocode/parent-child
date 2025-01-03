@@ -5,9 +5,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import { usePopup, removeMessage, removeError, updateMessage } from '../lib/slices/popupSlice';
 import { LayoutProps } from '../../../.next/types/app/layout';
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
+import { useProcess } from '../lib/slices/processSlice';
+import { v4 } from 'uuid';
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const dispatch = useDispatch();
+  const {loader} = useSelector(useProcess)
   const { message: messages, error: errors} = useSelector(usePopup);
 
   useEffect(()=>{
@@ -69,18 +72,18 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           </div>
         ))}
       </div>
-      {/* <div className={style.processes}>
-        {Array.from(processes.values()).map((item) => (
+      <div className={style.processes}>
+        {loader.map(({msg}) => (
           <div
-          key={item.id}
+          key={v4()}
           >
           <div >
-            {item.data}
+            {msg}
           </div>
           <AiOutlineLoading3Quarters className={style.loading}/>
           </div>
         ))}
-      </div> */}
+      </div>
     </div>
   );
 };
