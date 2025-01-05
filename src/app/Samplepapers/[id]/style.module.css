@@ -1,0 +1,25 @@
+.paper{
+    background-color: rgba(250, 235, 238, 0.61);
+    height: 40vh;
+    overflow: scroll;
+    margin: 1rem ;
+}
+.title{
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin: 1rem;
+}
+.responses{
+    display: grid;
+    grid-template-columns: 3rem repeat(5,1fr);
+    column-gap: 0.5rem;
+    padding: 0.6rem 0.4rem;
+    margin: 0 1rem;
+    border-radius: 0.5rem;
+}
+.top{
+    background-color: rgb(177, 177, 177);
+}
+.responses p{
+    /* border: 1px solid black; */
+}

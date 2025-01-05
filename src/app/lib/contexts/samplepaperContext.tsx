@@ -18,7 +18,8 @@ interface sendval {
     samplepapers:papers[];
     setpapers:Function;
     dataloaded:boolean,
-    setload:Function
+    setload:Function,
+    getSamplePaper:Function
 }
 
 interface match{
@@ -40,7 +41,7 @@ export interface papers {
     responseCount:number,
     createdAt:string,
     totalScore:number,
-    passingMark:number
+    passingPercent:number
 }
 
 const samplePaperContext = createContext<sendval | undefined>(undefined);
@@ -91,10 +92,22 @@ const SampleProvider: React.FC<samplectx> = ({children})=>{
             return jsondata;
     }
 
+    const getSamplePaper = async(id : string, setpaper:Function)=>{
+        const url = `/API/Sample_papers/GetbyIdsamplepaper?id=${id}`;
+        const data = await fetch(url);
+        const jsondata = await data.json()
+        console.log(jsondata)
+        if(jsondata.success){
+            setpaper(jsondata.samplePaper)
+        }
+
+        return jsondata;
+    }
+
 
     return(
         <samplePaperContext.Provider
-        value ={{QUESTION_TYPES,samplepapers,dataloaded, setload, setpapers ,questions, setquestions, createSamplePaper, title, settitle}}
+        value ={{QUESTION_TYPES,samplepapers,dataloaded,getSamplePaper, setload, setpapers ,questions, setquestions, createSamplePaper, title, settitle}}
         >
             {children}
         </samplePaperContext.Provider>

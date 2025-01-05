@@ -41,7 +41,7 @@ export const GET = errorHandler(async(req: NextApiRequest)=> {
                         title:'$$samplePapers.title',
                         createdAt:'$$samplePapers.createdAt',
                         totalScore:'$$samplePapers.totalScore',
-                        passingMark:'$$samplePapers.passingMark',
+                        passingPercent:'$$samplePapers.passingPercent',
                         responseCount:{$size:{$ifNull : ['$$samplePapers.responses',[]]}}
                     }
                 }}

@@ -74,21 +74,22 @@ const page =()=>{
             <p>slno</p>
             <p>title</p>
             <p>totalScore</p>
-            <p>passingMark</p>
+            <p>passing%</p>
             <p>responseCount</p>
             <p>Date</p>
         </div>
         {
             (samplepapers && samplepapers.length>0) && 
-            samplepapers.map(({title,_id,responseCount,createdAt,totalScore,passingMark},i)=>(
+            samplepapers.map(({title,_id,responseCount,createdAt,totalScore,passingPercent},i)=>(
                 <div 
                 key={_id}
                 className={style.data}
+                onClick={()=>{router.push(`/Samplepapers/${_id}`)}}
                 >
                     <p>{i+1}</p>
                     <p>{title.slice(0,8) + '...'}</p>
                     <p>{totalScore}</p>
-                    <p>{passingMark}</p>
+                    <p>{passingPercent}</p>
                     <p>{responseCount}</p>
                     <p>{createdAt}</p>
                 </div>
