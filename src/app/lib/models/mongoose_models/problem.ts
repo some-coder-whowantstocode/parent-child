@@ -35,7 +35,6 @@ const questionSchema = new mongoose.Schema({
 },{_id:false});
 
 const answerSchema = new mongoose.Schema({
-    questionId: { type: mongoose.Schema.Types.ObjectId, ref: 'Question', required: true },
     answer: { 
         type: mongoose.Schema.Types.Mixed, 
         required: true,

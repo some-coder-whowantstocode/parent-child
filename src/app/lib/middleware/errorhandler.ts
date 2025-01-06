@@ -7,6 +7,7 @@ export function errorHandler(handler:Function){
             const res = await handler(req, resp); 
             return res;
         } catch (error : Error | any) {
+          console.log(error)
             let errmsg = null;
             let errstatus = 500;
 

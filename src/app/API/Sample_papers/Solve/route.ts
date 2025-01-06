@@ -6,26 +6,34 @@ import { Activities, Samplepaper } from "@/app/lib/models/mongoose_models/proble
 import { User } from "@/app/lib/models/mongoose_models/user";
 import { verifyToken } from "@/app/lib/middleware/verifyToken";
 import dbconnect from "@/app/lib/db";
+import { errorHandler } from "@/app/lib/middleware/errorhandler";
+import { cookies } from "next/headers";
+import { BadRequest } from "../../responses/errors";
+import mongoose from 'mongoose'
 
-export async function POST(req: NextApiRequest) {
-    try {
+interface pres{
+    question:string,
+    answer:string,
+    correctans:string,
+    score:number,
+    mark:number,
+    pos:number
+}
+
+export const POST = errorHandler(async (req: NextApiRequest) => {
         const data = await ReadStream(req.body);
         const { questionid, answers, timeSpent, distractiontime, timesgotdistracted } = data;
-        const token = req.cookies._parsed.get("authToken").value;
+        const cookie = await cookies();
+        const token = cookie.get("authToken")?.value
 
         if (!token) {
             return NextResponse.json({ err: "Unauthorized access" }, { status: 401 });
         }
 
-        try {
-            
-            const decoded = await verifyToken(token);
-        } catch (error) {
-            console.log(error.message)
-            return NextResponse.json({ err:error.message || "Unauthorized access" }, { status: 401 });
-        }
 
-        
+        const decoded = await verifyToken(token);
+
+
         await dbconnect();
         const user = await User.findOne({ username: decoded?.username }).select("isdeleted");
 
@@ -33,21 +41,27 @@ export async function POST(req: NextApiRequest) {
             return NextResponse.json({ err: "Unauthorized access" }, { status: 401 });
         }
 
-        const { questions, isdeleted } = await Samplepaper.findOne({ _id: questionid }).select("questions isdeleted");
-
-        if (!questions || isdeleted) {
-            return NextResponse.json({ err: "No such question exists" }, { status: 400 });
-        }
-
         if (!questionid || !answers || !timeSpent) {
             return NextResponse.json({ err: "questionid, timeSpent and answers are required" }, { status: 400 });
         }
 
-        let score = 0;
+        const { questions, isdeleted, passingPercent, totalScore } = await Samplepaper.findOne({ _id: questionid }).select("questions isdeleted passingPercent,totalScore");
 
-        const { GoogleGenerativeAI } = require("@google/generative-ai");
-        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        
+        if (!questions || isdeleted) {
+            return NextResponse.json({ err: "No such question exists" }, { status: 400 });
+        }
+
+        if(questions.length < answers.length){
+            throw new BadRequest("Answer is bigger than the question");
+        }
+        
+
+        let score = 0;
+        let status = 0;
+
+        const promptList : pres[] = []
+        
 
         for (let i = 0; i < answers.length && i < questions.length; i++) {
             switch (questions[i].questionType) {
@@ -56,6 +70,8 @@ export async function POST(req: NextApiRequest) {
                         const mark = questions[i].score;
                         answers[i].score = mark;
                         score += mark;
+                    } else {
+                        answers[i].score = 0;
                     }
                     break;
                 }
@@ -64,10 +80,15 @@ export async function POST(req: NextApiRequest) {
                         const mark = questions[i].score;
                         answers[i].score = mark;
                         score += mark;
+                    } else {
+                        answers[i].score = 0;
                     }
                     break;
                 }
                 case 'chronological-order': {
+                    if( !answers[i].answer?.length) {
+                        throw new BadRequest(`answer no${i+1}'s answer should be an array.`)
+                    }
                     let correct = true;
                     for (let j = 0; j < questions[i].correctAnswer.length; j++) {
                         if (answers[i].answer[j] !== questions[i].chronologicalOrder[questions[i].correctAnswer[j]]) {
@@ -79,52 +100,94 @@ export async function POST(req: NextApiRequest) {
                         const mark = questions[i].score;
                         answers[i].score = mark;
                         score += mark;
+                    } else {
+                        answers[i].score = 0;
                     }
                     break;
                 }
                 case 'true-false': {
                     if (questions[i].correctAnswer === answers[i].answer) {
                         const mark = questions[i].score;
-                        answers[i] = {...answers[i],score:mark};
-                        // answers[i].score = mark;
+                        answers[i].score = mark;
                         score += mark;
+                    } else {
+                        answers[i].score = 0;
                     }
                     break;
                 }
                 default: {
-                    const prompt = `Question: ${questions[i].questionText} 
-                                    Correct Answer: ${questions[i].correctAnswer} 
-                                    Given Answer: ${answers[i].answer} 
-                                    Match the given answer to the correct answer and grade the similarity. 
-                                    Only return a number between 0 and ${questions[i].score}. 
-                                    If the given answer is empty, return 0. 
-                                    Question Type: ${questions[i].questionType}`;
-                    const result = await model.generateContent(prompt);
-                    let mark = Number(result.response.text());
-                    console.log(answers[i]);
-                    answers[i].score = mark;
-                    score += mark;
+                    const p = {
+                        question: questions[i].questionText,
+                        correctans: questions[i].correctAnswer,
+                        answer: answers[i].answer,
+                        score: questions[i].score,
+                        pos: i,
+                        mark: 0
+                    }
+                    promptList.push(p);
                     break;
                 }
             }
         }
+        if (promptList.length > 0) {
+            const { GoogleGenerativeAI } = require("@google/generative-ai");
+            const genAI = await new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+            const model = await genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+            let prompt = `Assume you are the teacher ans now you will check some answers by a student for some questions, now i will provide you with some questions with the format of 'question, correct Answer, Given Answer, score', the question holds the question, correct answer is what the answer should be or simmilar to it , given answer holds the answer given by the student and finally score holds the maximum mark that can be given to the student on the question you can give mark between 0 to score.`
+            for (let i = 0; i < promptList.length; i++) {
+                prompt += `
+                question${i + 1} : ${promptList[i].question},
+                correct Answer : ${promptList[i].correctans},
+                Given Answer : ${promptList[i].answer},
+                score : ${promptList[i].score}
+                `
+            }
+            prompt += `Now return me the response in the format i give you ex: 1,3,5,2 where each number represent the score for each question only return me the marks divided by comma and do not return my anything else not a single letter.`
+            const response = await model.generateContent(prompt)
 
-        const activity = new Activities({
-            child: user._id,
-            samplePaper: questionid,
-            answers,
-            timeSpent,
-            totalScore:score,
-            status:1
-        });
+                const scores = response.response.text(); 
+                const scoreslist = scores.split(',');
+                for(let i=0;i<promptList.length;i++){
+                    let mark = Number(scoreslist[i]) ;
+                    if(!mark) mark = 0;
+                    answers[promptList[i].pos].score = mark;
+                    score += mark;
+                }
+                console.log(scores); 
+                if(score >= totalScore * (passingPercent/100)){
+                    status = 1;
+                }else{
+                    status = 2;
+                }
 
-        await activity.save();
+                const session = await mongoose.startSession();
+                session.startTransaction();
+                try {
+                    const activity = new Activities({
+                        child: user._id,
+                        samplePaper: questionid,
+                        answers,
+                        timeSpent,
+                        totalScore: score,
+                        status
+                    });
+        
+                    await activity.save();
 
-        await User.updateOne({username: decoded?.username},{$push:{activities:activity._id}})
-
-        return NextResponse.json({ message: "Answer submitted successfully" }, { status: 201 });
-    } catch (error) {
-        console.log(error)
-        return NextResponse.json({ err: "Something went wrong" }, { status: 500 });
+                    await Samplepaper.updateOne({_id:questionid},{$push:{responses:activity._id}})
+        
+                    await User.updateOne({ username: decoded?.username }, { $push: { activities: activity._id } })
+        
+                    await session.commitTransaction();
+                    session.endSession();
+                } catch (error) {
+                    console.log(error)
+                    await session.abortTransaction();
+                    session.endSession();
+                    throw new BadRequest('something went wrong');
+                }
+      
+            return NextResponse.json({ message: "Answer submitted successfully", status, success:true }, { status: 201 });
+        }
     }
-}
+)

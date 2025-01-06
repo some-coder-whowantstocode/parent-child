@@ -4,9 +4,9 @@ import { NextResponse } from 'next/server';
 import { Samplepaper } from '@/app/lib/models/mongoose_models/problem';
 import dbconnect from '@/app/lib/db';
 import { ObjectId } from 'mongodb';
+import { errorHandler } from '@/app/lib/middleware/errorhandler';
 
-export async function GET(req: NextApiRequest) {
-    try {
+export const GET = errorHandler(async(req: NextApiRequest)=> {
         const {searchParams} = new URL(req.url||"");
         const id = searchParams.get('id');
         const page = Number(searchParams.get("p")||1);
@@ -16,7 +16,6 @@ export async function GET(req: NextApiRequest) {
         }
 
         const skip = limit * (page - 1)
-        console.log(id)
 
         await dbconnect();
             const samplePaper = await Samplepaper.aggregate([
@@ -32,6 +31,34 @@ export async function GET(req: NextApiRequest) {
                             "responses":{$slice:['$responses',skip, limit]},
 
                     }
+                },
+                {
+                    $lookup:{
+                        from:"activities",
+                        localField:"responses",
+                        foreignField:"_id",
+                        as:"responses"
+                    }
+                },
+                {
+                    $lookup:{
+                        from:"users",
+                        localField:"responses.child",
+                        foreignField:"_id",
+                        as:"persons"
+                    }
+                },
+                {
+                    $project:{
+                        "title":1,
+                        "questions":1,
+                        "responses.createdAt":1,
+                        "responses.status":1,
+                        "responses.timeSpent":1,
+                        "responses.totalScore":1,
+                        "responses._id":1,
+                        "persons.username":1,
+                    }
                 }
             ])
            
@@ -41,8 +68,5 @@ export async function GET(req: NextApiRequest) {
 
             return NextResponse.json({ samplePaper:samplePaper[0], success:true }, { status: 200 });
        
-    } catch (error ) {
-        console.error(error);
-        return NextResponse.json({ err: error.message ? error.message :"Something went wrong" }, { status: 500 });
-    }
-}
+
+})

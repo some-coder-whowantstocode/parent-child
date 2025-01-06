@@ -6,12 +6,14 @@ import { Activities } from "@/app/lib/models/mongoose_models/problem";
 import { User } from "@/app/lib/models/mongoose_models/user";
 import { verifyToken } from "@/app/lib/middleware/verifyToken";
 import dbconnect from "@/app/lib/db";
+import { errorHandler } from "@/app/lib/middleware/errorhandler";
+import { cookies } from "next/headers";
 
-export async function POST(req: NextApiRequest) {
-    try {
+export const POST = errorHandler(async(req: NextApiRequest)=> {
         const data = await ReadStream(req.body);
         const { activityid, scores } = data;
-        const token = req.cookies._parsed.get("authToken").value;
+        const cookie = await cookies();
+        const token = cookie.get("authToken")?.value;
 
         if(!activityid || !scores){
             return NextResponse.json({ err: "activityid and scores are required" }, { status: 400 });
@@ -58,9 +60,7 @@ export async function POST(req: NextApiRequest) {
 
         
 
-        return NextResponse.json({ message: "Score updated successfully" }, { status: 200 });
-    } catch (error) {
-        console.log(error)
-        return NextResponse.json({ err: "Something went wrong" }, { status: 500 });
-    }
+        return NextResponse.json({ message: "Score updated successfully", success:true }, { status: 200 });
+  
 }
+)

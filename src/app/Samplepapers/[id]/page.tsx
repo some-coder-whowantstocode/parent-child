@@ -6,17 +6,28 @@ import style3 from '../style.module.css'
 import { errorhandler } from '@/app/lib/errorhandler'
 import { question, useSample } from '@/app/lib/contexts/samplepaperContext'
 import { useParams } from 'next/navigation'
-import { papers } from '@/app/lib/contexts/samplepaperContext'
 import { v4 } from 'uuid'
+
+interface resp{
+    totalScore:number,
+    _id:string,
+    timeSpent:number,
+    status:2,
+    createdAt:Date
+}
+interface pers{
+    username:string
+}
 
 interface paper {
     createdAt:Date,
     passingPercent:number,
     questions:question[],
-    responses:string[],
+    responses:resp[],
     title:string,
     totalScore:number,
-    _id:string
+    _id:string,
+    persons:pers[]
 }
 
 const page =()=>{
@@ -121,16 +132,21 @@ const page =()=>{
                     <p>submitedAt</p>
                 </div>
                 {
-                    paper ?
+                    paper  ?
                     
-                    paper.responses.map(({},i)=>(
+                    paper.responses.map((res,i)=>(
                         <div
                         className={style.responses}
+                        key={v4()}
                         >
-
+                            <p>{i+1}</p>
+                            <p>{paper.persons[i].username}</p>
+                            <p>{res.totalScore}</p>
+                            <p>{res.status}</p>
+                            <p>{new Date(res.createdAt).getDate()}</p>
+                            <p>{res.timeSpent}</p>
                         </div>
                     ))
-
                     :
                     <div
                     className={style3.paperSkeleton}
