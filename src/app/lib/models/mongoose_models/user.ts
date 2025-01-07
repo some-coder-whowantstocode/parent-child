@@ -77,6 +77,21 @@ const userSchema = new mongoose.Schema({
         type:Boolean,
         default:false,
         _id:false
+    },
+    connectionCount:{
+        type:Number,
+        default:0,
+        _id:false
+    },
+    samplePaperCount:{
+        type:Number,
+        default:0,
+        _id:false
+    },
+    activityCount:{
+        type:Number,
+        default:0,
+        _id:false
     }
 })
 

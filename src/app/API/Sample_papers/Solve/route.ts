@@ -184,7 +184,7 @@ export const POST = errorHandler(async (req: NextApiRequest) => {
                     console.log(error)
                     await session.abortTransaction();
                     session.endSession();
-                    throw new BadRequest('something went wrong');
+                    throw new BadRequest('something went wrong at solve');
                 }
       
             return NextResponse.json({ message: "Answer submitted successfully", status, success:true }, { status: 201 });

@@ -1,40 +1,50 @@
-import { NextApiRequest, NextApiResponse } from "next"
+import { NextApiRequest } from "next";
 import { NextResponse } from "next/server";
 
-export function errorHandler(handler:Function){
-    return async function(req:NextApiRequest, resp:NextResponse){
+export function errorHandler(handler:Function) {
+    return async function(req:NextApiRequest) {
         try {
-            const res = await handler(req, resp); 
+            const res = await handler(req); 
             return res;
-        } catch (error : Error | any) {
-          console.log(error)
+        } catch (error : any) {
+            console.log(error);
             let errmsg = null;
             let errstatus = 500;
 
-            if (error.name === "MongoNetworkError") {
-              errmsg = "Network error: " + error.message;
-            } else if (error.name === "MongoTimeoutError") {
-              errmsg = "Timeout error: " + error.message;
-            } else if (error.name === "ValidationError") {
-              let verr: Error | any = Object.values(error.errors)[0];
-              errmsg = verr.message;
-            } else if (error.code === 11000) {
-              errstatus = 409;
-              errmsg = `${
-                Object.keys(error.errorResponse.keyValue)[0]
-              } already exists, please choose another.`;
+            switch (error.name) {
+                case "MongoNetworkError":
+                    errmsg = "Network error: " + error.message;
+                    break;
+                case "MongoTimeoutError":
+                    errmsg = "Timeout error: " + error.message;
+                    break;
+                case "ValidationError":
+                    const verr : any = Object.values(error.errors)[0];
+                    errmsg = verr.message;
+                    break;
+                case "TokenExpiredError":
+                    errmsg = 'Token expired: ' + error.message;
+                    break;
+                case "JsonWebTokenError":
+                    errmsg = 'Invalid token: ' + error.message;
+                    break;
+               
             }
-            
+
+            if (error.code === 11000) {
+                errstatus = 409;
+                errmsg = `${
+                    Object.keys(error.keyValue)[0]
+                } already exists, please choose another.`;
+            }
+
             return NextResponse.json(
-              {
-                error:
-                  errmsg ||
-                  error.message ||
-                  "something went wrong while creating account.",
-                success: false,
-                statusCode: error.statusCode || errstatus,
-              },
-              { status: error.statusCode || errstatus }
+                {
+                    error: errmsg || error.message || "Something went wrong while processing your request.",
+                    success: false,
+                    statusCode: errstatus,
+                },
+                { status: errstatus }
             );
         }
     }
