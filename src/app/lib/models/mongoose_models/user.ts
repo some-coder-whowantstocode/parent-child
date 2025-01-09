@@ -1,4 +1,5 @@
-import mongoose, { Schema } from 'mongoose';
+import mongoose, { Schema, ValidatorProps } from 'mongoose';
+
 
 const userSchema = new mongoose.Schema({
     fullname: {
@@ -35,21 +36,6 @@ const userSchema = new mongoose.Schema({
           },
         immutable: true
     },
-    Connections:[{
-            type: Schema.Types.ObjectId,
-            ref:'User',
-            _id:false
-    }],
-    connectionRequests: [{
-            type: Schema.Types.ObjectId,
-            ref:'User',
-            _id:false
-    }],
-    connectionRequested: [{
-            type: Schema.Types.ObjectId,
-            ref:'User',
-            _id:false
-    }],
     isverified: {
         type: Boolean,
         default: false
@@ -65,12 +51,12 @@ const userSchema = new mongoose.Schema({
     },
     samplePapers: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Samplepaper',
+        ref: 'samplepapers',
         _id:false
     }],
     activities: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Activities',
+        ref: 'activities',
         _id:false
     }],
     isdeleted:{
@@ -92,6 +78,11 @@ const userSchema = new mongoose.Schema({
         type:Number,
         default:0,
         _id:false
+    },
+    calenderid:{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"calenders",
+        _id:false
     }
 })
 
@@ -99,9 +90,10 @@ if(!mongoose.models.User && process.env.NODE_ENV === 'production'){
     userSchema.index({ email:1 },{unique:true});
     userSchema.index({ email:1,'connectionRequests.id': 1 },{unique:true});
     userSchema.index({ email:1,'connectionRequested.id': 1 },{unique:true});
+    userSchema.index({ _id:1, 'calender.date':1},{unique:true})
 }
 
-const User = mongoose.models.User || mongoose.model("User",userSchema);
+const User = mongoose.models.User || mongoose.model("users",userSchema);
 
 
 export { User };

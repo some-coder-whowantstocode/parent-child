@@ -59,9 +59,9 @@ const samplePaperSchema = new mongoose.Schema({
             required:[true,'atleast one question is required and questions must be a array']
         }
     ,
-    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'users', required: true },
     createdAt: { type: Date, default: Date.now },
-    responses:[{type:mongoose.Schema.Types.ObjectId, ref:'Activites', default:[]}],
+    responses:[{type:mongoose.Schema.Types.ObjectId, ref:'activites', default:[]}],
     isdeleted:{
         type:Boolean,
         default:false,
@@ -86,8 +86,8 @@ function questionval (val:[]){
 }
 
 const childActivitySchema = new mongoose.Schema({
-    child: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    samplePaper: { type: mongoose.Schema.Types.ObjectId, ref: 'Samplepaper', required: true },
+    child: { type: mongoose.Schema.Types.ObjectId, ref: 'users', required: true },
+    samplePaper: { type: mongoose.Schema.Types.ObjectId, ref: 'samplepapers', required: true },
     answers: [{
         type:answerSchema,
         validate:{
@@ -112,9 +112,9 @@ const childActivitySchema = new mongoose.Schema({
     }
 });
 
-const Activities = mongoose.models.Activities || mongoose.model('Activities', childActivitySchema);
-const Samplepaper = mongoose.models.Samplepaper || mongoose.model('Samplepaper', samplePaperSchema);
-const Question = mongoose.models.Question || mongoose.model('Question', questionSchema);
-const Answer = mongoose.models.Answer || mongoose.model('Answer', answerSchema);
+const Activities = mongoose.models.Activities || mongoose.model('activities', childActivitySchema);
+const Samplepaper = mongoose.models.Samplepaper || mongoose.model('samplepaper', samplePaperSchema);
+// const Question = mongoose.models.Question || mongoose.model('Question', questionSchema);
+// const Answer = mongoose.models.Answer || mongoose.model('Answer', answerSchema);
 
-export {  Samplepaper, Activities, Question, Answer};
+export {  Samplepaper, Activities};
