@@ -26,5 +26,5 @@ if(!mongoose.models.User && process.env.NODE_ENV === 'production'){
 }
 
 
-const Calender  = mongoose.models.Calender || mongoose.model('calenders', CalenderSchema);
+const Calender  = mongoose.models.calenders || mongoose.model('calenders', CalenderSchema);
 export { Calender}

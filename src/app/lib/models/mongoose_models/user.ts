@@ -93,7 +93,7 @@ if(!mongoose.models.User && process.env.NODE_ENV === 'production'){
     userSchema.index({ _id:1, 'calender.date':1},{unique:true})
 }
 
-const User = mongoose.models.User || mongoose.model("users",userSchema);
+const User = mongoose.models.users || mongoose.model("users",userSchema);
 
 
 export { User };

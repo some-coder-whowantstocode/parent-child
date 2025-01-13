@@ -37,6 +37,6 @@ if (!models.User && process.env.NODE_ENV === "production") {
   ConnectionSchema.index({ userOne: 1, userTwo: 1 }, { unique: true });
 }
 
-const Connection = models.Connection || model("connections", ConnectionSchema);
+const Connection = models.connections || model("connections", ConnectionSchema);
 
 export { Connection };

@@ -112,8 +112,8 @@ const childActivitySchema = new mongoose.Schema({
     }
 });
 
-const Activities = mongoose.models.Activities || mongoose.model('activities', childActivitySchema);
-const Samplepaper = mongoose.models.Samplepaper || mongoose.model('samplepaper', samplePaperSchema);
+const Activities = mongoose.models.activities || mongoose.model('activities', childActivitySchema);
+const Samplepaper = mongoose.models.samplepaper || mongoose.model('samplepaper', samplePaperSchema);
 // const Question = mongoose.models.Question || mongoose.model('Question', questionSchema);
 // const Answer = mongoose.models.Answer || mongoose.model('Answer', answerSchema);
 

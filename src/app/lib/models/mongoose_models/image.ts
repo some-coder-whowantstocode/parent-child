@@ -6,5 +6,5 @@ const Imagemetadataschema = new mongoose.Schema({
     uploadDate:{type:Date, default:Date.now}
 })
 
-const ImageMetadata  = mongoose.models.ImageMetadata || mongoose.model('imagemetadatas', Imagemetadataschema);
+const ImageMetadata  = mongoose.models.imagemetadatas || mongoose.model('imagemetadatas', Imagemetadataschema);
 export { ImageMetadata}
